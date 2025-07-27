@@ -2,10 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import Layout from "@/components/Layout";
 import Logo from "@/components/Logo";
+import PDFExportDialog from "@/components/PDFExportDialog";
+import ResumeTemplate from "@/components/ResumeTemplate";
 import { Button } from "@/components/ui/button";
 import { EnhancedButton } from "@/components/ui/enhanced-button";
 import { Input } from "@/components/ui/input";
@@ -76,6 +76,7 @@ interface Education {
   degree: string;
   year: string;
   marks: string;
+  location: string;
 }
 
 interface Certification {
@@ -153,6 +154,7 @@ const STEPS = [
 export default function Builder() {
   const [currentStep, setCurrentStep] = useState(0);
   const [showPreview, setShowPreview] = useState(false);
+  const [showPDFExport, setShowPDFExport] = useState(false);
   const [fontFamily, setFontFamily] = useState<string>("Roboto");
   const [fontCategory, setFontCategory] = useState<string>("sans-serif");
 
@@ -208,7 +210,10 @@ export default function Builder() {
         );
         setExperiences(data.experiences || []);
         setProjects(data.projects || []);
-        setEducation(data.education || []);
+        setEducation((data.education || []).map((edu: any) => ({
+          ...edu,
+          location: edu.location || ""
+        })));
         setCertifications(data.certifications || []);
         setAchievements(data.achievements || "");
         setInterests(data.interests || "");
@@ -273,25 +278,47 @@ export default function Builder() {
     );
   }, [currentStep]);
 
-  // ATS Score calculation
-  const calculateATSScore = () => {
-    let score = 0;
+  // Completion percentage calculation
+  const calculateCompletionPercentage = () => {
+    // Only count required steps and optional steps that have been started
+    let totalRelevantSteps = 0;
+    let completedSteps = 0;
 
-    if (personalInfo.name && personalInfo.email && personalInfo.phone)
-      score += 20;
-    if (personalInfo.linkedin) score += 10;
-    if (personalInfo.github) score += 10;
-    if (summary.length > 50) score += 15;
-    if (
-      skills.programmingLanguages.length > 0 &&
-      skills.frameworksLibraries.length > 0
-    )
-      score += 15;
-    if (projects.length > 0) score += 15;
-    if (education.length > 0) score += 10;
-    if (experiences.length > 0) score += 5;
+    STEPS.forEach((step, index) => {
+      if (step.required) {
+        // Always count required steps
+        totalRelevantSteps++;
+        if (isStepComplete(index)) {
+          completedSteps++;
+        }
+      } else {
+        // For optional steps, only count if they've been started
+        const hasContent = hasOptionalStepContent(step.id);
+        if (hasContent) {
+          totalRelevantSteps++;
+          if (isStepComplete(index)) {
+            completedSteps++;
+          }
+        }
+      }
+    });
 
-    return Math.min(score, 100);
+    return totalRelevantSteps > 0 ? Math.round((completedSteps / totalRelevantSteps) * 100) : 0;
+  };
+
+  const hasOptionalStepContent = (stepId: string) => {
+    switch (stepId) {
+      case "experience":
+        return experiences.length > 0;
+      case "certifications":
+        return certifications.length > 0;
+      case "achievements":
+        return achievements.trim().length > 0;
+      case "interests":
+        return interests.trim().length > 0;
+      default:
+        return false;
+    }
   };
 
   const getATSRecommendations = () => {
@@ -375,6 +402,7 @@ export default function Builder() {
       degree: "",
       year: "",
       marks: "",
+      location: "",
     };
     setEducation([...education, newEdu]);
   };
@@ -423,359 +451,12 @@ export default function Builder() {
 
   const resumeRef = useRef<HTMLDivElement>(null);
 
-  const handleDownload = async () => {
-    if (!resumeRef.current) {
-      alert("Resume content not ready. Please try again.");
-      return;
-    }
-
+  const handleDownload = () => {
     if (!personalInfo.name || personalInfo.name.trim().length === 0) {
       alert("Please fill in your name before downloading.");
       return;
     }
-
-    try {
-      // Create text-based PDF
-      const pdf = new jsPDF("p", "pt", "a4");
-
-      // Set font
-      pdf.setFont("helvetica");
-
-      let yPosition = 60;
-      const margin = 40;
-      const pageWidth = 595 - 2 * margin;
-
-      // Helper function to add text with word wrapping
-      const addWrappedText = (
-        text: string,
-        x: number,
-        y: number,
-        maxWidth: number,
-        fontSize: number = 10,
-      ) => {
-        pdf.setFontSize(fontSize);
-        const lines = pdf.splitTextToSize(text, maxWidth);
-        pdf.text(lines, x, y);
-        return y + lines.length * (fontSize + 2);
-      };
-
-      // Helper function to check if we need a new page
-      const checkPageBreak = (requiredSpace: number) => {
-        if (yPosition + requiredSpace > 750) {
-          // A4 height is about 842 points
-          pdf.addPage();
-          yPosition = 60;
-        }
-      };
-
-      // Header - Name (centered)
-      pdf.setFontSize(20);
-      pdf.setFont("helvetica", "bold");
-      const nameWidth = pdf.getTextWidth(personalInfo.name.toUpperCase());
-      const centerX = (595 - nameWidth) / 2; // Center on page
-      pdf.text(personalInfo.name.toUpperCase(), centerX, yPosition);
-      yPosition += 30;
-
-      // Contact Information (centered and properly formatted)
-      pdf.setFontSize(9);
-      pdf.setFont("helvetica", "normal");
-
-      const contactLines = [];
-      if (personalInfo.phone && personalInfo.email) {
-        contactLines.push(`${personalInfo.phone} | ${personalInfo.email}`);
-      }
-
-      const socialLinks = [
-        personalInfo.linkedin && `LinkedIn: ${personalInfo.linkedin}`,
-        personalInfo.github && `GitHub: ${personalInfo.github}`,
-        personalInfo.portfolio && `Portfolio: ${personalInfo.portfolio}`,
-      ].filter(Boolean);
-
-      if (socialLinks.length > 0) {
-        contactLines.push(socialLinks.join(" | "));
-      }
-
-      if (personalInfo.address) {
-        contactLines.push(personalInfo.address);
-      }
-
-      contactLines.forEach((line) => {
-        const lineWidth = pdf.getTextWidth(line);
-        const lineCenterX = (595 - lineWidth) / 2;
-        pdf.text(line, lineCenterX, yPosition);
-        yPosition += 12;
-      });
-
-      yPosition += 10;
-
-      // Summary
-      if (summary) {
-        checkPageBreak(60);
-
-        pdf.setFontSize(14);
-        pdf.setFont("helvetica", "bold");
-        pdf.text("SUMMARY", margin, yPosition);
-        yPosition += 5;
-
-        // Draw underline
-        pdf.setLineWidth(1);
-        pdf.line(margin, yPosition, margin + pageWidth, yPosition);
-        yPosition += 15;
-
-        pdf.setFontSize(10);
-        pdf.setFont("helvetica", "normal");
-        yPosition = addWrappedText(summary, margin, yPosition, pageWidth);
-        yPosition += 20;
-      }
-
-      // Skills
-      if (Object.values(skills).some((skillArray) => skillArray.length > 0)) {
-        checkPageBreak(100);
-
-        pdf.setFontSize(14);
-        pdf.setFont("helvetica", "bold");
-        pdf.text("SKILLS", margin, yPosition);
-        yPosition += 5;
-
-        pdf.setLineWidth(1);
-        pdf.line(margin, yPosition, margin + pageWidth, yPosition);
-        yPosition += 15;
-
-        pdf.setFontSize(10);
-        pdf.setFont("helvetica", "normal");
-
-        const skillCategories = [
-          {
-            title: "Programming Languages",
-            skills: skills.programmingLanguages,
-          },
-          { title: "Web Technologies", skills: skills.webTechnologies },
-          {
-            title: "Frameworks & Libraries",
-            skills: skills.frameworksLibraries,
-          },
-          { title: "Databases", skills: skills.databases },
-          { title: "Tools & Platforms", skills: skills.toolsPlatforms },
-          { title: "Cloud & Hosting", skills: skills.cloudHosting },
-          { title: "Other Technical Skills", skills: skills.otherTechnical },
-        ];
-
-        skillCategories.forEach((category) => {
-          if (category.skills.length > 0) {
-            pdf.setFont("helvetica", "bold");
-            pdf.text(`${category.title}:`, margin, yPosition);
-            yPosition += 12;
-
-            pdf.setFont("helvetica", "normal");
-            const skillsText = category.skills.join(", ");
-            yPosition = addWrappedText(
-              skillsText,
-              margin + 10,
-              yPosition,
-              pageWidth - 10,
-            );
-            yPosition += 8;
-          }
-        });
-        yPosition += 15;
-      }
-
-      // Experience
-      if (experiences.length > 0) {
-        checkPageBreak(80);
-
-        pdf.setFontSize(14);
-        pdf.setFont("helvetica", "bold");
-        pdf.text("EXPERIENCE", margin, yPosition);
-        yPosition += 5;
-
-        pdf.setLineWidth(1);
-        pdf.line(margin, yPosition, margin + pageWidth, yPosition);
-        yPosition += 15;
-
-        experiences.forEach((exp, index) => {
-          if (index > 0) checkPageBreak(60);
-
-          pdf.setFontSize(11);
-          pdf.setFont("helvetica", "bold");
-          pdf.text(exp.position, margin, yPosition);
-
-          pdf.setFont("helvetica", "normal");
-          const dateText = `${exp.startDate} - ${exp.endDate}`;
-          const dateWidth = pdf.getTextWidth(dateText);
-          pdf.text(dateText, margin + pageWidth - dateWidth, yPosition);
-          yPosition += 14;
-
-          pdf.setFontSize(10);
-          pdf.setFont("helvetica", "italic");
-          pdf.text(exp.company, margin, yPosition);
-          yPosition += 16;
-
-          pdf.setFont("helvetica", "normal");
-          exp.responsibilities
-            .filter((r) => r.trim())
-            .forEach((resp) => {
-              yPosition = addWrappedText(
-                `• ${resp}`,
-                margin + 10,
-                yPosition,
-                pageWidth - 10,
-              );
-              yPosition += 4;
-            });
-          yPosition += 12;
-        });
-      }
-
-      // Projects
-      if (projects.length > 0) {
-        checkPageBreak(80);
-
-        pdf.setFontSize(14);
-        pdf.setFont("helvetica", "bold");
-        pdf.text("PROJECTS", margin, yPosition);
-        yPosition += 5;
-
-        pdf.setLineWidth(1);
-        pdf.line(margin, yPosition, margin + pageWidth, yPosition);
-        yPosition += 15;
-
-        projects.forEach((project, index) => {
-          if (index > 0) checkPageBreak(50);
-
-          pdf.setFontSize(11);
-          pdf.setFont("helvetica", "bold");
-          pdf.text(project.name, margin, yPosition);
-          yPosition += 14;
-
-          if (project.techStack) {
-            pdf.setFontSize(10);
-            pdf.setFont("helvetica", "normal");
-            yPosition = addWrappedText(
-              `Tech Stack: ${project.techStack}`,
-              margin,
-              yPosition,
-              pageWidth,
-            );
-            yPosition += 4;
-          }
-
-          if (project.githubLink || project.deployLink) {
-            const links = [
-              project.githubLink && `GitHub: ${project.githubLink}`,
-              project.deployLink && `Live Demo: ${project.deployLink}`,
-            ]
-              .filter(Boolean)
-              .join(" | ");
-            yPosition = addWrappedText(links, margin, yPosition, pageWidth);
-            yPosition += 4;
-          }
-
-          project.description
-            .filter((d) => d.trim())
-            .forEach((desc) => {
-              yPosition = addWrappedText(
-                `• ${desc}`,
-                margin + 10,
-                yPosition,
-                pageWidth - 10,
-              );
-              yPosition += 4;
-            });
-          yPosition += 12;
-        });
-      }
-
-      // Education
-      if (education.length > 0) {
-        pdf.setFontSize(12);
-        pdf.setFont("helvetica", "bold");
-        pdf.text("EDUCATION", margin, yPosition);
-        yPosition += 15;
-
-        pdf.line(margin, yPosition - 5, margin + pageWidth, yPosition - 5);
-        yPosition += 5;
-
-        education.forEach((edu) => {
-          pdf.setFont("helvetica", "bold");
-          pdf.text(edu.institution, margin, yPosition);
-          pdf.setFont("helvetica", "normal");
-          pdf.text(edu.year, margin + 300, yPosition);
-          yPosition += 12;
-
-          pdf.text(`${edu.degree} in ${edu.course}`, margin, yPosition);
-          yPosition += 12;
-
-          if (edu.marks) {
-            pdf.text(edu.marks, margin, yPosition);
-            yPosition += 12;
-          }
-          yPosition += 5;
-        });
-      }
-
-      // Certifications
-      if (certifications.length > 0) {
-        pdf.setFontSize(12);
-        pdf.setFont("helvetica", "bold");
-        pdf.text("CERTIFICATIONS", margin, yPosition);
-        yPosition += 15;
-
-        pdf.line(margin, yPosition - 5, margin + pageWidth, yPosition - 5);
-        yPosition += 5;
-
-        certifications.forEach((cert) => {
-          pdf.setFont("helvetica", "normal");
-          pdf.text(cert.title, margin, yPosition);
-          pdf.text(cert.year, margin + 300, yPosition);
-          yPosition += 12;
-          pdf.text(cert.organization, margin, yPosition);
-          yPosition += 15;
-        });
-      }
-
-      // Achievements
-      if (achievements) {
-        pdf.setFontSize(12);
-        pdf.setFont("helvetica", "bold");
-        pdf.text("ACHIEVEMENTS", margin, yPosition);
-        yPosition += 15;
-
-        pdf.line(margin, yPosition - 5, margin + pageWidth, yPosition - 5);
-        yPosition += 5;
-
-        pdf.setFont("helvetica", "normal");
-        yPosition = addWrappedText(
-          achievements,
-          margin,
-          yPosition,
-          pageWidth,
-          10,
-        );
-      }
-
-      // Interests
-      if (interests) {
-        yPosition += 15;
-        pdf.setFontSize(12);
-        pdf.setFont("helvetica", "bold");
-        pdf.text("INTERESTS", margin, yPosition);
-        yPosition += 15;
-
-        pdf.line(margin, yPosition - 5, margin + pageWidth, yPosition - 5);
-        yPosition += 5;
-
-        pdf.setFont("helvetica", "normal");
-        yPosition = addWrappedText(interests, margin, yPosition, pageWidth, 10);
-      }
-
-      // Download the PDF
-      const fileName = `${personalInfo.name.replace(/\s+/g, "")}_cv.pdf`;
-      pdf.save(fileName);
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      alert("Error generating PDF. Please try again.");
-    }
+    setShowPDFExport(true);
   };
 
   const nextStep = () => {
@@ -827,6 +508,8 @@ export default function Builder() {
           skills.programmingLanguages.length > 0 &&
           skills.frameworksLibraries.length > 0
         );
+      case "experience":
+        return experiences.length === 0 || experiences.every((e) => e.position && e.company);
       case "projects":
         return (
           projects.length > 0 && projects.every((p) => p.name && p.techStack)
@@ -836,10 +519,16 @@ export default function Builder() {
           education.length > 0 &&
           education.every((e) => e.institution && e.degree && e.year)
         );
+      case "certifications":
+        return certifications.length === 0 || certifications.every((c) => c.title && c.organization);
+      case "achievements":
+        return true; // If it has content, it's complete (checked in hasOptionalStepContent)
+      case "interests":
+        return true; // If it has content, it's complete (checked in hasOptionalStepContent)
       case "customization":
         return true; // Font selection is always complete
       default:
-        return true; // Optional sections are always "complete"
+        return false;
     }
   };
 
@@ -934,308 +623,23 @@ export default function Builder() {
 
   const ResumePreview = () => (
     <motion.div
-      ref={resumeRef}
-      className="bg-white p-6 shadow-lg max-w-[21cm] mx-auto text-sm leading-tight print:p-4 print:shadow-none"
-      style={{ fontFamily: fontFamily }}
+      className="bg-white shadow-lg max-w-[21cm] mx-auto"
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
     >
-      {/* Header */}
-      <div className="text-center mb-4">
-        <h1 className="font-bold text-xl text-black mb-2 tracking-wide uppercase">
-          {personalInfo.name}
-        </h1>
-        <div className="text-black space-y-1 text-xs">
-          <p>
-            {personalInfo.phone} |{" "}
-            <a
-              href={`mailto:${personalInfo.email}`}
-              className="text-black hover:underline cursor-pointer"
-            >
-              {personalInfo.email}
-            </a>
-          </p>
-          {(personalInfo.linkedin ||
-            personalInfo.github ||
-            personalInfo.portfolio) && (
-            <p className="flex justify-center gap-2 flex-wrap">
-              {personalInfo.linkedin && (
-                <a
-                  href={
-                    personalInfo.linkedin.startsWith("http")
-                      ? personalInfo.linkedin
-                      : `https://${personalInfo.linkedin}`
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-black hover:underline cursor-pointer"
-                >
-                  LinkedIn
-                </a>
-              )}
-              {personalInfo.github && (
-                <>
-                  {personalInfo.linkedin && " | "}
-                  <a
-                    href={
-                      personalInfo.github.startsWith("http")
-                        ? personalInfo.github
-                        : `https://${personalInfo.github}`
-                    }
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-black hover:underline cursor-pointer"
-                  >
-                    GitHub
-                  </a>
-                </>
-              )}
-              {personalInfo.portfolio && (
-                <>
-                  {(personalInfo.linkedin || personalInfo.github) && " | "}
-                  <a
-                    href={
-                      personalInfo.portfolio.startsWith("http")
-                        ? personalInfo.portfolio
-                        : `https://${personalInfo.portfolio}`
-                    }
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-black hover:underline cursor-pointer"
-                  >
-                    Portfolio
-                  </a>
-                </>
-              )}
-            </p>
-          )}
-          <p>{personalInfo.address}</p>
-        </div>
-      </div>
-
-      {/* Summary */}
-      {summary && (
-        <div className="mb-4">
-          <h2 className="font-bold text-sm text-black mb-1 uppercase tracking-wider">
-            SUMMARY
-          </h2>
-          <hr className="border-black mb-2" />
-          <p className="text-black text-xs leading-relaxed">{summary}</p>
-        </div>
-      )}
-
-      {/* Skills */}
-      {(skills.programmingLanguages.length > 0 ||
-        skills.webTechnologies.length > 0 ||
-        skills.frameworksLibraries.length > 0 ||
-        skills.databases.length > 0 ||
-        skills.toolsPlatforms.length > 0 ||
-        skills.cloudHosting.length > 0 ||
-        skills.otherTechnical.length > 0) && (
-        <div className="mb-4">
-          <h2 className="font-bold text-sm text-black mb-1 uppercase tracking-wider">
-            SKILLS
-          </h2>
-          <hr className="border-black mb-2" />
-          <div className="text-black text-xs space-y-1">
-            {skills.programmingLanguages.length > 0 && (
-              <p>
-                <strong>Programming Languages:</strong>{" "}
-                {skills.programmingLanguages.join(", ")}
-              </p>
-            )}
-            {skills.webTechnologies.length > 0 && (
-              <p>
-                <strong>Web Technologies:</strong>{" "}
-                {skills.webTechnologies.join(", ")}
-              </p>
-            )}
-            {skills.frameworksLibraries.length > 0 && (
-              <p>
-                <strong>Frameworks & Libraries:</strong>{" "}
-                {skills.frameworksLibraries.join(", ")}
-              </p>
-            )}
-            {skills.databases.length > 0 && (
-              <p>
-                <strong>Databases:</strong> {skills.databases.join(", ")}
-              </p>
-            )}
-            {skills.toolsPlatforms.length > 0 && (
-              <p>
-                <strong>Tools & Platforms:</strong>{" "}
-                {skills.toolsPlatforms.join(", ")}
-              </p>
-            )}
-            {skills.cloudHosting.length > 0 && (
-              <p>
-                <strong>Cloud & Hosting:</strong>{" "}
-                {skills.cloudHosting.join(", ")}
-              </p>
-            )}
-            {skills.otherTechnical.length > 0 && (
-              <p>
-                <strong>Other Technical Skills:</strong>{" "}
-                {skills.otherTechnical.join(", ")}
-              </p>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Experience */}
-      {experiences.length > 0 && (
-        <div className="mb-4">
-          <h2 className="font-bold text-sm text-black mb-1 uppercase tracking-wider">
-            EXPERIENCE
-          </h2>
-          <hr className="border-black mb-2" />
-          {experiences.map((exp) => (
-            <div key={exp.id} className="mb-3">
-              <div className="flex justify-between items-start mb-1">
-                <h3 className="font-bold text-black text-xs">{exp.position}</h3>
-                <span className="text-black text-xs">
-                  {exp.startDate} - {exp.endDate}
-                </span>
-              </div>
-              <p className="text-black text-xs mb-1">{exp.company}</p>
-              <ul className="text-black text-xs list-disc list-inside space-y-0.5">
-                {exp.responsibilities
-                  .filter((r) => r.trim())
-                  .map((resp, index) => (
-                    <li key={index}>{resp}</li>
-                  ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Projects */}
-      {projects.length > 0 && (
-        <div className="mb-4">
-          <h2 className="font-bold text-sm text-black mb-1 uppercase tracking-wider">
-            PROJECTS
-          </h2>
-          <hr className="border-black mb-2" />
-          {projects.map((project) => (
-            <div key={project.id} className="mb-3">
-              <h3 className="font-bold text-black text-xs">{project.name}</h3>
-              <p className="text-black text-xs mb-1">
-                <strong>Tech Stack:</strong> {project.techStack}
-              </p>
-              {(project.githubLink || project.deployLink) && (
-                <p className="text-black text-xs mb-1">
-                  {project.githubLink && (
-                    <a
-                      href={
-                        project.githubLink.startsWith("http")
-                          ? project.githubLink
-                          : `https://${project.githubLink}`
-                      }
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-black hover:underline cursor-pointer"
-                    >
-                      GitHub
-                    </a>
-                  )}
-                  {project.deployLink && (
-                    <>
-                      {project.githubLink && " | "}
-                      <a
-                        href={
-                          project.deployLink.startsWith("http")
-                            ? project.deployLink
-                            : `https://${project.deployLink}`
-                        }
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-black hover:underline cursor-pointer"
-                      >
-                        Live Demo
-                      </a>
-                    </>
-                  )}
-                </p>
-              )}
-              <ul className="text-black text-xs list-disc list-inside space-y-0.5">
-                {project.description
-                  .filter((d) => d.trim())
-                  .map((desc, index) => (
-                    <li key={index}>{desc}</li>
-                  ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Education */}
-      {education.length > 0 && (
-        <div className="mb-4">
-          <h2 className="font-bold text-sm text-black mb-1 uppercase tracking-wider">
-            EDUCATION
-          </h2>
-          <hr className="border-black mb-2" />
-          {education.map((edu) => (
-            <div key={edu.id} className="mb-2">
-              <div className="flex justify-between items-start mb-1">
-                <h3 className="font-bold text-black text-xs">
-                  {edu.institution}
-                </h3>
-                <span className="text-black text-xs">{edu.year}</span>
-              </div>
-              <p className="text-black text-xs">
-                {edu.degree} in {edu.course}
-              </p>
-              {edu.marks && <p className="text-black text-xs">{edu.marks}</p>}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Certifications */}
-      {certifications.length > 0 && (
-        <div className="mb-4">
-          <h2 className="font-bold text-sm text-black mb-1 uppercase tracking-wider">
-            CERTIFICATIONS
-          </h2>
-          <hr className="border-black mb-2" />
-          {certifications.map((cert) => (
-            <div key={cert.id} className="mb-1">
-              <div className="flex justify-between items-start">
-                <span className="text-black text-xs">{cert.title}</span>
-                <span className="text-black text-xs">{cert.year}</span>
-              </div>
-              <p className="text-black text-xs">{cert.organization}</p>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Achievements */}
-      {achievements && (
-        <div className="mb-4">
-          <h2 className="font-bold text-sm text-black mb-1 uppercase tracking-wider">
-            ACHIEVEMENTS
-          </h2>
-          <hr className="border-black mb-2" />
-          <p className="text-black text-xs">{achievements}</p>
-        </div>
-      )}
-
-      {/* Interests */}
-      {interests && (
-        <div className="mb-4">
-          <h2 className="font-bold text-sm text-black mb-1 uppercase tracking-wider">
-            INTERESTS
-          </h2>
-          <hr className="border-black mb-2" />
-          <p className="text-black text-xs">{interests}</p>
-        </div>
-      )}
+      <ResumeTemplate
+        personalInfo={personalInfo}
+        summary={summary}
+        skills={skills}
+        experiences={experiences}
+        projects={projects}
+        education={education}
+        certifications={certifications}
+        achievements={achievements}
+        interests={interests}
+        fontFamily={fontFamily}
+      />
     </motion.div>
   );
 
@@ -2172,6 +1576,19 @@ export default function Builder() {
                           />
                         </div>
                       </div>
+                      <div>
+                        <Label className="font-roboto text-black font-medium">
+                          Location (optional)
+                        </Label>
+                        <Input
+                          value={edu.location}
+                          onChange={(e) =>
+                            updateEducation(edu.id, "location", e.target.value)
+                          }
+                          className="border-gray-border font-roboto mt-1 focus:ring-2 focus:ring-black focus:border-transparent rounded-xl"
+                          placeholder="City, State/Country"
+                        />
+                      </div>
                     </div>
                   </motion.div>
                 ))}
@@ -2513,7 +1930,7 @@ export default function Builder() {
     }
   };
 
-  const atsScore = calculateATSScore();
+  const completionPercentage = calculateCompletionPercentage();
   const recommendations = getATSRecommendations();
   const currentStepObj = STEPS[currentStep];
 
@@ -2572,16 +1989,16 @@ export default function Builder() {
                   <Sparkles className="w-4 h-4 text-yellow-500" />
                   <motion.span
                     className="font-roboto text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent"
-                    key={atsScore}
+                    key={completionPercentage}
                     initial={{ scale: 1.3, rotate: 5 }}
                     animate={{ scale: 1, rotate: 0 }}
                     transition={{ duration: 0.5, type: "spring" }}
                   >
-                    {atsScore}%
+                    {completionPercentage}%
                   </motion.span>
                 </motion.div>
                 <span className="font-roboto text-xs text-gray-600 font-medium mt-1">
-                  ATS Score
+                  Completion
                 </span>
               </motion.div>
 
@@ -2693,7 +2110,7 @@ export default function Builder() {
                     Resume Preview
                   </span>
                   <span className="font-roboto text-xs text-gray-text">
-                    ATS Score: {atsScore}%
+                    Completion: {completionPercentage}%
                   </span>
                 </div>
                 <div className="max-h-[800px] overflow-y-auto">
@@ -2799,6 +2216,22 @@ export default function Builder() {
           )}
         </div>
       </div>
+
+      {/* PDF Export Dialog */}
+      <PDFExportDialog
+        isOpen={showPDFExport}
+        onClose={() => setShowPDFExport(false)}
+        personalInfo={personalInfo}
+        summary={summary}
+        skills={skills}
+        experiences={experiences}
+        projects={projects}
+        education={education}
+        certifications={certifications}
+        achievements={achievements}
+        interests={interests}
+        fontFamily={fontFamily}
+      />
     </div>
   );
 }

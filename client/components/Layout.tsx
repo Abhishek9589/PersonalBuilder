@@ -91,15 +91,7 @@ export default function Layout({ children }: LayoutProps) {
                     {/* Text */}
                     <span className="relative z-10">{item.name}</span>
 
-                    {/* Active indicator */}
-                    {isActive(item.path) && (
-                      <motion.div
-                        className="absolute bottom-1 left-1/2 w-1 h-1 bg-black rounded-full"
-                        layoutId="activeIndicator"
-                        initial={false}
-                        style={{ x: "-50%" }}
-                      />
-                    )}
+
                   </Link>
                 </motion.div>
               ))}
