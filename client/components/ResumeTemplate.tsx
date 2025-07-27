@@ -45,6 +45,11 @@ interface Certification {
   year: string;
 }
 
+interface Achievement {
+  id: string;
+  description: string;
+}
+
 interface Skills {
   programmingLanguages: string[];
   webTechnologies: string[];
@@ -63,9 +68,11 @@ interface ResumeTemplateProps {
   projects: Project[];
   education: Education[];
   certifications: Certification[];
-  achievements: string;
+  achievements: Achievement[];
   interests: string;
   fontFamily: string;
+  fontSize: number;
+  marginSize: number;
 }
 
 const ResumeTemplate = React.forwardRef<HTMLDivElement, ResumeTemplateProps>(
@@ -81,21 +88,27 @@ const ResumeTemplate = React.forwardRef<HTMLDivElement, ResumeTemplateProps>(
       achievements,
       interests,
       fontFamily,
+      fontSize,
+      marginSize,
     },
     ref
   ) => {
     return (
       <div
         ref={ref}
-        className="min-h-[11in] max-w-[8.5in] mx-auto p-6 bg-white text-sm leading-snug"
-        style={{ fontFamily: fontFamily }}
+        className="min-h-[11in] max-w-[8.5in] mx-auto bg-white leading-snug"
+        style={{
+          fontFamily: fontFamily,
+          fontSize: `${fontSize}px`,
+          padding: `${marginSize}px`
+        }}
       >
         {/* Header */}
         <div className="text-center mb-3">
-          <h1 className="font-bold text-2xl text-black mb-2 tracking-wide uppercase">
+          <h1 className="font-bold text-black mb-2 tracking-wide uppercase" style={{ fontSize: '2em' }}>
             {personalInfo.name}
           </h1>
-          <div className="text-black space-y-1 text-xs">
+          <div className="text-black space-y-1" style={{ fontSize: '0.75em' }}>
             <p>
               {personalInfo.phone} |{" "}
               <a
@@ -172,22 +185,22 @@ const ResumeTemplate = React.forwardRef<HTMLDivElement, ResumeTemplateProps>(
         {/* Summary */}
         {summary && (
           <div className="mb-3">
-            <h2 className="font-bold text-sm text-black mb-1 uppercase tracking-wider">
+            <h2 className="font-bold text-black mb-1 uppercase tracking-wider" style={{ fontSize: '1.1em' }}>
               SUMMARY
             </h2>
             <hr className="border-black mb-1" />
-            <p className="text-black text-xs leading-tight">{summary}</p>
+            <p className="text-black leading-tight" style={{ fontSize: '0.9em' }}>{summary}</p>
           </div>
         )}
 
         {/* Skills */}
         {Object.values(skills).some((skillArray) => skillArray.length > 0) && (
           <div className="mb-3">
-            <h2 className="font-bold text-sm text-black mb-1 uppercase tracking-wider">
+            <h2 className="font-bold text-black mb-1 uppercase tracking-wider" style={{ fontSize: '1.1em' }}>
               SKILLS
             </h2>
             <hr className="border-black mb-1" />
-            <div className="text-black text-xs space-y-0.5">
+            <div className="text-black space-y-0.5" style={{ fontSize: '0.9em' }}>
               {skills.programmingLanguages.length > 0 && (
                 <p>
                   <strong>Programming Languages:</strong>{" "}
@@ -236,20 +249,20 @@ const ResumeTemplate = React.forwardRef<HTMLDivElement, ResumeTemplateProps>(
         {/* Experience */}
         {experiences.length > 0 && (
           <div className="mb-3">
-            <h2 className="font-bold text-sm text-black mb-1 uppercase tracking-wider">
+            <h2 className="font-bold text-black mb-1 uppercase tracking-wider" style={{ fontSize: '1.1em' }}>
               EXPERIENCE
             </h2>
             <hr className="border-black mb-1" />
             {experiences.map((exp) => (
               <div key={exp.id} className="mb-2">
                 <div className="flex justify-between items-start mb-0.5">
-                  <h3 className="font-bold text-black text-xs">{exp.position}</h3>
-                  <span className="text-black text-xs">
+                  <h3 className="font-bold text-black" style={{ fontSize: '0.9em' }}>{exp.position}</h3>
+                  <span className="text-black" style={{ fontSize: '0.9em' }}>
                     {exp.startDate} - {exp.endDate}
                   </span>
                 </div>
-                <p className="text-black text-xs mb-0.5">{exp.company}</p>
-                <ul className="text-black text-xs list-disc list-inside space-y-0">
+                <p className="text-black mb-0.5" style={{ fontSize: '0.9em' }}>{exp.company}</p>
+                <ul className="text-black list-disc list-inside space-y-0" style={{ fontSize: '0.9em' }}>
                   {exp.responsibilities
                     .filter((r) => r.trim())
                     .map((resp, index) => (
@@ -264,16 +277,16 @@ const ResumeTemplate = React.forwardRef<HTMLDivElement, ResumeTemplateProps>(
         {/* Projects */}
         {projects.length > 0 && (
           <div className="mb-3">
-            <h2 className="font-bold text-sm text-black mb-1 uppercase tracking-wider">
+            <h2 className="font-bold text-black mb-1 uppercase tracking-wider" style={{ fontSize: '1.1em' }}>
               PROJECTS
             </h2>
             <hr className="border-black mb-1" />
             {projects.map((project) => (
               <div key={project.id} className="mb-2">
                 <div className="flex items-baseline justify-between">
-                  <h3 className="font-bold text-black text-xs">{project.name}</h3>
+                  <h3 className="font-bold text-black" style={{ fontSize: '0.9em' }}>{project.name}</h3>
                   {(project.githubLink || project.deployLink) && (
-                    <span className="text-black text-xs">
+                    <span className="text-black" style={{ fontSize: '0.9em' }}>
                       {project.githubLink && (
                         <a
                           href={
@@ -308,10 +321,10 @@ const ResumeTemplate = React.forwardRef<HTMLDivElement, ResumeTemplateProps>(
                     </span>
                   )}
                 </div>
-                <p className="text-black text-xs mb-0.5">
+                <p className="text-black mb-0.5" style={{ fontSize: '0.9em' }}>
                   <strong>Tech Stack:</strong> {project.techStack}
                 </p>
-                <ul className="text-black text-xs list-disc list-inside space-y-0">
+                <ul className="text-black list-disc list-inside space-y-0" style={{ fontSize: '0.9em' }}>
                   {project.description
                     .filter((d) => d.trim())
                     .map((desc, index) => (
@@ -326,11 +339,11 @@ const ResumeTemplate = React.forwardRef<HTMLDivElement, ResumeTemplateProps>(
         {/* Education */}
         {education.length > 0 && (
           <div className="mb-3">
-            <h2 className="font-bold text-sm text-black mb-1 uppercase tracking-wider">
+            <h2 className="font-bold text-black mb-1 uppercase tracking-wider" style={{ fontSize: '1.1em' }}>
               EDUCATION
             </h2>
             <hr className="border-black mb-1" />
-            <div className="text-black text-xs space-y-1">
+            <div className="text-black space-y-1" style={{ fontSize: '0.9em' }}>
               {education.map((edu) => (
                 <div key={edu.id} className="ml-3">
                   <div className="flex justify-between items-start">
@@ -344,7 +357,7 @@ const ResumeTemplate = React.forwardRef<HTMLDivElement, ResumeTemplateProps>(
                     <span>
                       {edu.degree} in {edu.course}{edu.marks && ` - ${edu.marks}`}
                     </span>
-                    {edu.location && <span className="text-xs">{edu.location}</span>}
+                    {edu.location && <span style={{ fontSize: '0.8em' }}>{edu.location}</span>}
                   </div>
                 </div>
               ))}
@@ -355,34 +368,37 @@ const ResumeTemplate = React.forwardRef<HTMLDivElement, ResumeTemplateProps>(
         {/* Certifications */}
         {certifications.length > 0 && (
           <div className="mb-3">
-            <h2 className="font-bold text-sm text-black mb-1 uppercase tracking-wider">
+            <h2 className="font-bold text-black mb-1 uppercase tracking-wider" style={{ fontSize: '1.1em' }}>
               CERTIFICATIONS
             </h2>
             <hr className="border-black mb-1" />
-            <ul className="text-black text-xs list-disc list-inside space-y-0.5">
+            <div className="text-black space-y-1" style={{ fontSize: '0.9em' }}>
               {certifications.map((cert) => (
-                <li key={cert.id}>
+                <div key={cert.id} className="ml-3">
                   <div className="flex justify-between items-start">
-                    <span>
+                    <span className="relative">
+                      <span className="absolute -left-3 top-0">•</span>
                       <strong>{cert.title}</strong> - {cert.organization}
                     </span>
                     <span className="ml-2">{cert.year}</span>
                   </div>
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         )}
 
         {/* Achievements */}
-        {achievements && (
+        {achievements.length > 0 && (
           <div className="mb-3">
-            <h2 className="font-bold text-sm text-black mb-1 uppercase tracking-wider">
+            <h2 className="font-bold text-black mb-1 uppercase tracking-wider" style={{ fontSize: '1.1em' }}>
               ACHIEVEMENTS
             </h2>
             <hr className="border-black mb-1" />
-            <ul className="text-black text-xs list-disc list-inside">
-              <li>{achievements}</li>
+            <ul className="text-black list-disc list-inside space-y-0.5" style={{ fontSize: '0.9em' }}>
+              {achievements.map((achievement) => (
+                <li key={achievement.id}>{achievement.description}</li>
+              ))}
             </ul>
           </div>
         )}
@@ -390,11 +406,11 @@ const ResumeTemplate = React.forwardRef<HTMLDivElement, ResumeTemplateProps>(
         {/* Interests */}
         {interests && (
           <div className="mb-3">
-            <h2 className="font-bold text-sm text-black mb-1 uppercase tracking-wider">
+            <h2 className="font-bold text-black mb-1 uppercase tracking-wider" style={{ fontSize: '1.1em' }}>
               INTERESTS
             </h2>
             <hr className="border-black mb-1" />
-            <ul className="text-black text-xs list-disc list-inside">
+            <ul className="text-black list-disc list-inside" style={{ fontSize: '0.9em' }}>
               <li>{interests}</li>
             </ul>
           </div>

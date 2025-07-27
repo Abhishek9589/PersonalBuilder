@@ -58,6 +58,11 @@ interface Certification {
   year: string;
 }
 
+interface Achievement {
+  id: string;
+  description: string;
+}
+
 interface Skills {
   programmingLanguages: string[];
   webTechnologies: string[];
@@ -78,9 +83,11 @@ interface PDFExportDialogProps {
   projects: Project[];
   education: Education[];
   certifications: Certification[];
-  achievements: string;
+  achievements: Achievement[];
   interests: string;
   fontFamily: string;
+  fontSize: number;
+  marginSize: number;
 }
 
 // Removed the old PrintableResume component - now using shared ResumeTemplate
@@ -91,7 +98,7 @@ export default function PDFExportDialog(props: PDFExportDialogProps) {
 
   const handlePrint = useReactToPrint({
     contentRef: printRef,
-    documentTitle: `${personalInfo.name.replace(/\s+/g, "_")}_Resume`,
+    documentTitle: `${personalInfo.name.replace(/\s+/g, "_")}_cv`,
     pageStyle: `
       @page {
         size: A4;
@@ -162,6 +169,8 @@ export default function PDFExportDialog(props: PDFExportDialogProps) {
                     achievements={props.achievements}
                     interests={props.interests}
                     fontFamily={props.fontFamily}
+                    fontSize={props.fontSize}
+                    marginSize={props.marginSize}
                   />
                 </div>
               </div>
@@ -204,6 +213,8 @@ export default function PDFExportDialog(props: PDFExportDialogProps) {
           achievements={props.achievements}
           interests={props.interests}
           fontFamily={props.fontFamily}
+          fontSize={props.fontSize}
+          marginSize={props.marginSize}
         />
       </div>
     </>

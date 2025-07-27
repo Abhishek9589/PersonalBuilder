@@ -38,7 +38,6 @@ import {
   Trophy,
   Heart,
   Palette,
-  Sparkles,
 } from "lucide-react";
 
 interface PersonalInfo {
@@ -84,6 +83,11 @@ interface Certification {
   title: string;
   organization: string;
   year: string;
+}
+
+interface Achievement {
+  id: string;
+  description: string;
 }
 
 const FONT_CATEGORIES = {
@@ -157,6 +161,8 @@ export default function Builder() {
   const [showPDFExport, setShowPDFExport] = useState(false);
   const [fontFamily, setFontFamily] = useState<string>("Roboto");
   const [fontCategory, setFontCategory] = useState<string>("sans-serif");
+  const [fontSize, setFontSize] = useState<number>(12);
+  const [marginSize, setMarginSize] = useState<number>(24);
 
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo>({
     name: "",
@@ -183,7 +189,7 @@ export default function Builder() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [education, setEducation] = useState<Education[]>([]);
   const [certifications, setCertifications] = useState<Certification[]>([]);
-  const [achievements, setAchievements] = useState("");
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [interests, setInterests] = useState("");
   const [customSkillInputs, setCustomSkillInputs] = useState<
     Record<string, string>
@@ -215,10 +221,12 @@ export default function Builder() {
           location: edu.location || ""
         })));
         setCertifications(data.certifications || []);
-        setAchievements(data.achievements || "");
+        setAchievements(data.achievements || []);
         setInterests(data.interests || "");
         setFontFamily(data.fontFamily || "Roboto");
         setFontCategory(data.fontCategory || "sans-serif");
+        setFontSize(data.fontSize || 12);
+        setMarginSize(data.marginSize || 24);
         setCurrentStep(data.currentStep || 0);
         setCustomSkillInputs(data.customSkillInputs || {});
       } catch (error) {
@@ -241,6 +249,8 @@ export default function Builder() {
       interests,
       fontFamily,
       fontCategory,
+      fontSize,
+      marginSize,
       currentStep,
       customSkillInputs,
     };
@@ -257,6 +267,8 @@ export default function Builder() {
     interests,
     fontFamily,
     fontCategory,
+    fontSize,
+    marginSize,
     currentStep,
     customSkillInputs,
   ]);
@@ -278,33 +290,7 @@ export default function Builder() {
     );
   }, [currentStep]);
 
-  // Completion percentage calculation
-  const calculateCompletionPercentage = () => {
-    // Only count required steps and optional steps that have been started
-    let totalRelevantSteps = 0;
-    let completedSteps = 0;
 
-    STEPS.forEach((step, index) => {
-      if (step.required) {
-        // Always count required steps
-        totalRelevantSteps++;
-        if (isStepComplete(index)) {
-          completedSteps++;
-        }
-      } else {
-        // For optional steps, only count if they've been started
-        const hasContent = hasOptionalStepContent(step.id);
-        if (hasContent) {
-          totalRelevantSteps++;
-          if (isStepComplete(index)) {
-            completedSteps++;
-          }
-        }
-      }
-    });
-
-    return totalRelevantSteps > 0 ? Math.round((completedSteps / totalRelevantSteps) * 100) : 0;
-  };
 
   const hasOptionalStepContent = (stepId: string) => {
     switch (stepId) {
@@ -313,7 +299,7 @@ export default function Builder() {
       case "certifications":
         return certifications.length > 0;
       case "achievements":
-        return achievements.trim().length > 0;
+        return achievements.length > 0;
       case "interests":
         return interests.trim().length > 0;
       default:
@@ -449,6 +435,30 @@ export default function Builder() {
     setCertifications(certifications.filter((cert) => cert.id !== id));
   };
 
+  const addAchievement = () => {
+    const newAchievement: Achievement = {
+      id: Date.now().toString(),
+      description: "",
+    };
+    setAchievements([...achievements, newAchievement]);
+  };
+
+  const updateAchievement = (
+    id: string,
+    field: keyof Achievement,
+    value: string,
+  ) => {
+    setAchievements(
+      achievements.map((achievement) =>
+        achievement.id === id ? { ...achievement, [field]: value } : achievement,
+      ),
+    );
+  };
+
+  const removeAchievement = (id: string) => {
+    setAchievements(achievements.filter((achievement) => achievement.id !== id));
+  };
+
   const resumeRef = useRef<HTMLDivElement>(null);
 
   const handleDownload = () => {
@@ -522,7 +532,7 @@ export default function Builder() {
       case "certifications":
         return certifications.length === 0 || certifications.every((c) => c.title && c.organization);
       case "achievements":
-        return true; // If it has content, it's complete (checked in hasOptionalStepContent)
+        return achievements.length === 0 || achievements.every((a) => a.description.trim().length > 0);
       case "interests":
         return true; // If it has content, it's complete (checked in hasOptionalStepContent)
       case "customization":
@@ -639,6 +649,8 @@ export default function Builder() {
         achievements={achievements}
         interests={interests}
         fontFamily={fontFamily}
+        fontSize={fontSize}
+        marginSize={marginSize}
       />
     </motion.div>
   );
@@ -1717,28 +1729,70 @@ export default function Builder() {
         return (
           <Card className="border border-gray-border bg-white shadow-lg">
             <CardHeader className="pb-4">
-              <CardTitle className="font-roboto text-black flex items-center gap-2">
-                <Trophy className="w-5 h-5" />
-                Achievements (Optional)
-              </CardTitle>
+              <div className="flex justify-between items-center">
+                <CardTitle className="font-roboto text-black flex items-center gap-2">
+                  <Trophy className="w-5 h-5" />
+                  Achievements (Optional)
+                </CardTitle>
+                <EnhancedButton
+                  onClick={addAchievement}
+                  size="sm"
+                  variant="outline"
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Add Achievement
+                </EnhancedButton>
+              </div>
             </CardHeader>
-            <CardContent>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-              >
-                <Label className="font-roboto text-black font-medium">
-                  Achievements
-                </Label>
-                <Textarea
-                  value={achievements}
-                  onChange={(e) => setAchievements(e.target.value)}
-                  className="border-gray-border font-roboto mt-1 focus:ring-2 focus:ring-black focus:border-transparent rounded-xl"
-                  rows={4}
-                  placeholder="List your professional or academic achievements, awards, recognitions..."
-                />
-              </motion.div>
+            <CardContent className="space-y-6">
+              <AnimatePresence>
+                {achievements.map((achievement, index) => (
+                  <motion.div
+                    key={achievement.id}
+                    className="border border-gray-border rounded-lg p-6 bg-gray-50"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <div className="flex justify-between items-start mb-4">
+                      <h4 className="font-semibold font-roboto text-black">
+                        Achievement Entry
+                      </h4>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeAchievement(achievement.id)}
+                        className="text-gray-600 hover:text-black"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <div>
+                      <Label className="font-roboto text-black font-medium">
+                        Achievement Description
+                      </Label>
+                      <Textarea
+                        value={achievement.description}
+                        onChange={(e) =>
+                          updateAchievement(achievement.id, "description", e.target.value)
+                        }
+                        className="border-gray-border font-roboto mt-1 focus:ring-2 focus:ring-black focus:border-transparent rounded-xl"
+                        rows={3}
+                        placeholder="Describe your achievement, award, or recognition..."
+                      />
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+              {achievements.length === 0 && (
+                <div className="text-center py-12 text-gray-text">
+                  <Trophy className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                  <p className="font-roboto">
+                    No achievements added yet. This section is optional.
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         );
@@ -1854,6 +1908,63 @@ export default function Builder() {
               </motion.div>
 
               <motion.div
+                className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25 }}
+              >
+                <div>
+                  <Label className="font-roboto text-black font-medium">
+                    Font Size (px)
+                  </Label>
+                  <div className="mt-1 space-y-2">
+                    <input
+                      type="range"
+                      min="10"
+                      max="18"
+                      step="1"
+                      value={fontSize}
+                      onChange={(e) => setFontSize(Number(e.target.value))}
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                    />
+                    <div className="flex justify-between text-xs text-gray-500">
+                      <span>10px</span>
+                      <span className="font-medium text-black">{fontSize}px</span>
+                      <span>18px</span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-text mt-2">
+                    Adjust the base font size for your resume content.
+                  </p>
+                </div>
+
+                <div>
+                  <Label className="font-roboto text-black font-medium">
+                    Page Margin (px)
+                  </Label>
+                  <div className="mt-1 space-y-2">
+                    <input
+                      type="range"
+                      min="12"
+                      max="48"
+                      step="4"
+                      value={marginSize}
+                      onChange={(e) => setMarginSize(Number(e.target.value))}
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                    />
+                    <div className="flex justify-between text-xs text-gray-500">
+                      <span>12px</span>
+                      <span className="font-medium text-black">{marginSize}px</span>
+                      <span>48px</span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-text mt-2">
+                    Control the padding around the edges of your resume.
+                  </p>
+                </div>
+              </motion.div>
+
+              <motion.div
                 className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -1930,7 +2041,6 @@ export default function Builder() {
     }
   };
 
-  const completionPercentage = calculateCompletionPercentage();
   const recommendations = getATSRecommendations();
   const currentStepObj = STEPS[currentStep];
 
@@ -1975,33 +2085,6 @@ export default function Builder() {
             </div>
 
             <div className="flex items-center gap-6">
-              <motion.div
-                className="flex flex-col items-center p-4 bg-gradient-to-br from-gray-50 to-white rounded-2xl border border-gray-200 shadow-lg"
-                whileHover={{ scale: 1.05 }}
-                transition={{ duration: 0.2 }}
-              >
-                <motion.div
-                  className="flex items-center gap-2"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  <Sparkles className="w-4 h-4 text-yellow-500" />
-                  <motion.span
-                    className="font-roboto text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent"
-                    key={completionPercentage}
-                    initial={{ scale: 1.3, rotate: 5 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    transition={{ duration: 0.5, type: "spring" }}
-                  >
-                    {completionPercentage}%
-                  </motion.span>
-                </motion.div>
-                <span className="font-roboto text-xs text-gray-600 font-medium mt-1">
-                  Completion
-                </span>
-              </motion.div>
-
               <EnhancedButton
                 onClick={() => setShowPreview(!showPreview)}
                 variant="outline"
@@ -2105,12 +2188,9 @@ export default function Builder() {
             >
               {/* Only Resume Preview - No ATS Recommendations */}
               <div className="bg-white border border-gray-border shadow-lg p-1">
-                <div className="bg-gray-light p-3 flex justify-between items-center">
+                <div className="bg-gray-light p-3">
                   <span className="font-roboto text-sm text-gray-text">
                     Resume Preview
-                  </span>
-                  <span className="font-roboto text-xs text-gray-text">
-                    Completion: {completionPercentage}%
                   </span>
                 </div>
                 <div className="max-h-[800px] overflow-y-auto">
@@ -2231,6 +2311,8 @@ export default function Builder() {
         achievements={achievements}
         interests={interests}
         fontFamily={fontFamily}
+        fontSize={fontSize}
+        marginSize={marginSize}
       />
     </div>
   );
