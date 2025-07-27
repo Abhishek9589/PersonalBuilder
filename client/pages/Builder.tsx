@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
 import Layout from "@/components/Layout";
@@ -38,6 +38,7 @@ import {
   Trophy,
   Heart,
   Palette,
+  RotateCcw,
 } from "lucide-react";
 
 interface PersonalInfo {
@@ -156,9 +157,12 @@ const STEPS = [
 ];
 
 export default function Builder() {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [showPreview, setShowPreview] = useState(false);
   const [showPDFExport, setShowPDFExport] = useState(false);
+  const [showResetDialog, setShowResetDialog] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [fontFamily, setFontFamily] = useState<string>("Roboto");
   const [fontCategory, setFontCategory] = useState<string>("sans-serif");
   const [fontSize, setFontSize] = useState<number>(12);
@@ -479,6 +483,60 @@ export default function Builder() {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     }
+  };
+
+  const resetAll = async () => {
+    setIsLoading(true);
+    setShowResetDialog(false);
+
+    // Add a small delay for smooth transition
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    // Clear localStorage
+    localStorage.removeItem("resumeBuilderData");
+
+    // Reset all state to initial values
+    setCurrentStep(0);
+    setShowPreview(false);
+    setShowPDFExport(false);
+    setFontFamily("Roboto");
+    setFontCategory("sans-serif");
+    setFontSize(12);
+    setMarginSize(24);
+
+    setPersonalInfo({
+      name: "",
+      phone: "",
+      email: "",
+      linkedin: "",
+      github: "",
+      portfolio: "",
+      address: "",
+    });
+
+    setSummary("");
+    setSkills({
+      programmingLanguages: [],
+      webTechnologies: [],
+      frameworksLibraries: [],
+      databases: [],
+      toolsPlatforms: [],
+      cloudHosting: [],
+      otherTechnical: [],
+    });
+
+    setExperiences([]);
+    setProjects([]);
+    setEducation([]);
+    setCertifications([]);
+    setAchievements([]);
+    setInterests("");
+    setCustomSkillInputs({});
+
+    setIsLoading(false);
+
+    // Navigate back to home page
+    navigate("/");
   };
 
   const goToStep = (stepIndex: number) => {
@@ -2044,6 +2102,76 @@ export default function Builder() {
   const recommendations = getATSRecommendations();
   const currentStepObj = STEPS[currentStep];
 
+  // Loading Component
+  const LoadingOverlay = () => (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center min-h-screen">
+      <motion.div
+        className="bg-white rounded-2xl p-8 shadow-2xl mx-4"
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="flex flex-col items-center gap-4">
+          <motion.div
+            className="w-8 h-8 border-4 border-gray-300 border-t-black rounded-full"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          />
+          <p className="font-roboto text-gray-600">Resetting all data...</p>
+        </div>
+      </motion.div>
+    </div>
+  );
+
+  // Reset Dialog Component
+  const ResetDialog = () => (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center min-h-screen p-4">
+      <motion.div
+        className="bg-white rounded-2xl p-8 shadow-2xl max-w-md w-full mx-auto"
+        initial={{ scale: 0.8, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+      >
+        <div className="flex flex-col items-center gap-6">
+          <motion.div
+            className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.1, duration: 0.3 }}
+          >
+            <RotateCcw className="w-8 h-8 text-red-600" />
+          </motion.div>
+
+          <div className="text-center">
+            <h3 className="font-roboto font-bold text-xl text-black mb-2">
+              Reset All Data?
+            </h3>
+            <p className="font-roboto text-gray-600 leading-relaxed">
+              This will permanently delete all your resume information including personal details,
+              skills, experience, projects, and customizations. This action cannot be undone.
+            </p>
+          </div>
+
+          <div className="flex gap-3 w-full">
+            <EnhancedButton
+              onClick={() => setShowResetDialog(false)}
+              variant="outline"
+              className="flex-1"
+            >
+              Cancel
+            </EnhancedButton>
+            <EnhancedButton
+              onClick={resetAll}
+              className="flex-1 bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700"
+            >
+              Reset All
+            </EnhancedButton>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50/30 via-white to-purple-50/20">
       {/* Header */}
@@ -2070,6 +2198,9 @@ export default function Builder() {
               >
                 <Logo size="md" showText={true} />
               </div>
+            </div>
+
+            <div className="flex items-center gap-4">
               <EnhancedButton
                 onClick={(e) => {
                   e.stopPropagation();
@@ -2078,13 +2209,19 @@ export default function Builder() {
                 }}
                 variant="outline"
                 size="sm"
-                className="ml-4"
               >
                 Home
               </EnhancedButton>
-            </div>
 
-            <div className="flex items-center gap-6">
+              <EnhancedButton
+                onClick={() => setShowResetDialog(true)}
+                variant="outline"
+                className="text-red-600 hover:text-white hover:bg-red-600 hover:border-red-600 border-red-200 transition-all duration-200"
+              >
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Reset All
+              </EnhancedButton>
+
               <EnhancedButton
                 onClick={() => setShowPreview(!showPreview)}
                 variant="outline"
@@ -2314,6 +2451,12 @@ export default function Builder() {
         fontSize={fontSize}
         marginSize={marginSize}
       />
+
+      {/* Reset Confirmation Dialog */}
+      {showResetDialog && <ResetDialog />}
+
+      {/* Loading Overlay */}
+      {isLoading && <LoadingOverlay />}
     </div>
   );
 }
