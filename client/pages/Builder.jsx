@@ -45,6 +45,20 @@ import {
   RotateCcw,
   GripVertical,
   Settings,
+  Target,
+  Zap,
+  Brain,
+  Wrench,
+  Book,
+  Star,
+  Users,
+  Calendar,
+  MapPin,
+  Phone,
+  Mail,
+  Globe,
+  Lightbulb,
+  PlusCircle,
 } from "lucide-react";
 import {
   DndContext,
@@ -107,7 +121,78 @@ const FONT_CATEGORIES = {
   },
 };
 
-// Sortable step component for drag-and-drop
+// Function to dynamically select icons based on section names
+function getDynamicIcon(sectionName, isCustom = false) {
+  if (isCustom) {
+    return PlusCircle; // Consistent icon for custom sections
+  }
+
+  const normalizedName = sectionName.toLowerCase().trim();
+
+  // Map section names to appropriate icons
+  const iconMap = {
+    'personal info': User,
+    'header': User,
+    'contact': User,
+    'summary': FileText,
+    'objective': Target,
+    'about': FileText,
+    'profile': User,
+    'skills': Code,
+    'technical skills': Wrench,
+    'programming': Code,
+    'tools': Wrench,
+    'technologies': Zap,
+    'experience': Briefcase,
+    'work experience': Briefcase,
+    'employment': Briefcase,
+    'work': Briefcase,
+    'career': Briefcase,
+    'projects': FolderOpen,
+    'portfolio': FolderOpen,
+    'work samples': FolderOpen,
+    'education': GraduationCap,
+    'academic': GraduationCap,
+    'learning': Book,
+    'certifications': Award,
+    'certificates': Award,
+    'licenses': Award,
+    'achievements': Trophy,
+    'accomplishments': Trophy,
+    'awards': Star,
+    'honors': Star,
+    'interests': Heart,
+    'hobbies': Heart,
+    'personal interests': Heart,
+    'activities': Users,
+    'volunteer': Users,
+    'volunteering': Users,
+    'languages': Globe,
+    'references': Users,
+    'customization': Palette,
+    'design': Palette,
+    'publications': Book,
+    'research': Lightbulb,
+    'patents': Lightbulb,
+  };
+
+  // Check for exact matches first
+  if (iconMap[normalizedName]) {
+    return iconMap[normalizedName];
+  }
+
+  // Check for partial matches
+  for (const [key, icon] of Object.entries(iconMap)) {
+    if (normalizedName.includes(key) || key.includes(normalizedName)) {
+      return icon;
+    }
+  }
+
+  // Default fallback icon
+  return Settings;
+}
+
+// Sortable step component for drag-and-drop with enhanced animations
 function SortableStep({ step, index, isActive, isCompleted, onClick, onToggle, onDelete, onShowConfirmation }) {
   const {
     attributes,
@@ -126,16 +211,16 @@ function SortableStep({ step, index, isActive, isCompleted, onClick, onToggle, o
     zIndex: isDragging ? 1000 : 1,
   };
 
-  // Ensure Icon is a valid React component
-  const Icon = (step.icon && typeof step.icon === 'function') ? step.icon : Settings;
+  // Use dynamic icon selection based on section name and type
+  const Icon = getDynamicIcon(step.title, step.isCustom);
 
   return (
     <motion.div
       ref={setNodeRef}
       style={style}
-      className={`sidebar-step w-full flex items-center gap-3 p-4 rounded-2xl text-left transition-all duration-300 relative overflow-hidden ${
+      className={`sidebar-step w-full flex items-center gap-3 p-3 sm:p-4 rounded-2xl text-left transition-all duration-300 relative overflow-hidden card-grab ${
         isDragging
-          ? "bg-gradient-to-r from-blue-500 to-blue-700 text-white shadow-2xl ring-2 ring-blue-300"
+          ? "bg-gradient-to-r from-blue-500 to-blue-700 text-white shadow-2xl ring-4 ring-blue-300/50 scale-105 rotate-1"
           : !step.enabled
             ? "opacity-60 bg-gray-50 border-2 border-dashed border-gray-300"
             : isActive
@@ -144,26 +229,46 @@ function SortableStep({ step, index, isActive, isCompleted, onClick, onToggle, o
                 ? "bg-green-50 text-black hover:bg-green-100 border border-green-200"
                 : "text-gray-600 hover:bg-gray-100 hover:shadow-md"
       }`}
-      whileHover={{ scale: 1.03, x: 4 }}
-      whileTap={{ scale: 0.97 }}
+      whileHover={{
+        scale: 1.03,
+        x: 4,
+        transition: { type: "spring", stiffness: 300, damping: 20 }
+      }}
+      whileTap={{
+        scale: 0.97,
+        transition: { type: "spring", stiffness: 400, damping: 25 }
+      }}
       initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.1, duration: 0.5 }}
+      animate={{
+        opacity: 1,
+        x: 0,
+        scale: isDragging ? 1.05 : 1,
+        rotate: isDragging ? 2 : 0,
+        transition: {
+          type: "spring",
+          stiffness: 200,
+          damping: 20,
+          delay: index * 0.1,
+          duration: 0.5
+        }
+      }}
     >
       {/* Drag Handle */}
       {step.id !== 'customization' ? (
-        <div
+        <motion.div
           {...attributes}
           {...listeners}
-          className={`flex items-center justify-center w-6 h-6 cursor-grab active:cursor-grabbing hover:bg-black/10 rounded transition-colors ${
-            isDragging ? 'bg-white/20' : ''
+          className={`flex items-center justify-center w-6 h-6 cursor-grab active:cursor-grabbing hover:bg-black/10 rounded transition-all duration-200 ${
+            isDragging ? 'bg-white/20 scale-110' : ''
           }`}
+          whileHover={{ scale: 1.1, backgroundColor: 'rgba(0,0,0,0.1)' }}
+          whileTap={{ scale: 0.95 }}
           title="Drag to reorder"
         >
           <GripVertical className={`w-4 h-4 transition-colors ${
             isDragging ? 'text-white' : 'text-gray-400'
           }`} />
-        </div>
+        </motion.div>
       ) : (
         <div className="flex items-center justify-center w-6 h-6">
           <GripVertical className="w-4 h-4 text-gray-300" title="Customization section is fixed" />
@@ -573,7 +678,7 @@ export default function Builder() {
     const newStep = {
       id: newCustomSection.id,
       title: newCustomSection.name,
-      icon: Settings,
+      icon: PlusCircle,
       required: false,
       enabled: true,
       order: insertOrder,
@@ -1023,7 +1128,7 @@ export default function Builder() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-full">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -1543,7 +1648,7 @@ export default function Builder() {
                         <X className="w-4 h-4" />
                       </Button>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                       <div>
                         <Label className="font-roboto text-black font-medium">
                           Position
@@ -1924,7 +2029,7 @@ export default function Builder() {
                               updateEducation(edu.id, "year", e.target.value)
                             }
                             className="border-gray-border font-roboto mt-1 focus:ring-2 focus:ring-black focus:border-transparent rounded-xl"
-                            placeholder="2020 - 2024"
+                            placeholder="2020 - 2025"
                           />
                         </div>
                         <div>
@@ -2059,7 +2164,7 @@ export default function Builder() {
                             updateCertification(cert.id, "year", e.target.value)
                           }
                           className="border-gray-border font-roboto mt-1 focus:ring-2 focus:ring-black focus:border-transparent rounded-xl"
-                          placeholder="2024"
+                          placeholder="2025"
                         />
                       </div>
                     </div>
@@ -2256,7 +2361,7 @@ export default function Builder() {
               </motion.div>
 
               <motion.div
-                className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.25 }}

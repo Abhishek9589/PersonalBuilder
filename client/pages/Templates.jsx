@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { EnhancedButton } from "@/components/ui/enhanced-button";
+import { Button } from "@/components/ui/button";
 import {
   Eye,
   Download,
@@ -10,10 +12,160 @@ import {
   Code,
   Briefcase,
   GraduationCap,
+  X,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
+// Template Preview Modal Component
+function TemplatePreviewModal({ template, isOpen, onClose }) {
+  useEffect(() => {
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen || !template) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div className="relative w-full max-w-4xl h-full max-h-[90vh] bg-white rounded-2xl shadow-2xl overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+          <div>
+            <h3 className="text-2xl font-bold text-gray-800">{template.name}</h3>
+            <p className="text-gray-600 mt-1">{template.description}</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link to="/builder">
+              <Button className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2">
+                Use This Template
+              </Button>
+            </Link>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 rounded-full"
+            >
+              <X className="w-5 h-5" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Preview Content */}
+        <div className="flex-1 overflow-auto p-6 bg-gray-50">
+          <div className="max-w-2xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
+            {/* Sample Resume Content */}
+            <div className="p-8 space-y-6">
+              {/* Header */}
+              <div className="text-center border-b border-gray-200 pb-6">
+                <h1 className="text-3xl font-bold text-gray-900">John Doe</h1>
+                <p className="text-lg text-gray-600 mt-2">Software Engineer</p>
+                <div className="flex justify-center gap-4 mt-3 text-sm text-gray-500">
+                  <span>john.doe@email.com</span>
+                  <span>•</span>
+                  <span>(555) 123-4567</span>
+                  <span>•</span>
+                  <span>linkedin.com/in/johndoe</span>
+                </div>
+              </div>
+
+              {/* Professional Summary */}
+              <div>
+                <h2 className="text-xl font-semibold text-gray-800 border-b border-gray-300 pb-2 mb-3">
+                  Professional Summary
+                </h2>
+                <p className="text-gray-700 leading-relaxed">
+                  Experienced Software Engineer with 5+ years developing scalable web applications.
+                  Proven track record of delivering high-quality code and leading technical initiatives.
+                </p>
+              </div>
+
+              {/* Experience */}
+              <div>
+                <h2 className="text-xl font-semibold text-gray-800 border-b border-gray-300 pb-2 mb-3">
+                  Experience
+                </h2>
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-semibold text-gray-900">Senior Software Engineer</h3>
+                        <p className="text-gray-600">Tech Company Inc.</p>
+                      </div>
+                      <span className="text-gray-500 text-sm">2021 - Present</span>
+                    </div>
+                    <ul className="mt-2 space-y-1 text-gray-700">
+                      <li>• Developed and maintained React applications serving 100k+ users</li>
+                      <li>• Led migration from legacy PHP to modern Node.js architecture</li>
+                      <li>• Improved application performance by 40% through optimization</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* Skills */}
+              <div>
+                <h2 className="text-xl font-semibold text-gray-800 border-b border-gray-300 pb-2 mb-3">
+                  Skills
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {['JavaScript', 'React', 'Node.js', 'Python', 'AWS', 'Docker'].map((skill) => (
+                    <span key={skill} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Education */}
+              <div>
+                <h2 className="text-xl font-semibold text-gray-800 border-b border-gray-300 pb-2 mb-3">
+                  Education
+                </h2>
+                <div>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-semibold text-gray-900">Bachelor of Science in Computer Science</h3>
+                      <p className="text-gray-600">University of Technology</p>
+                    </div>
+                    <span className="text-gray-500 text-sm">2019</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Templates() {
+  const [previewTemplate, setPreviewTemplate] = useState(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+  const openPreview = (template) => {
+    setPreviewTemplate(template);
+    setIsPreviewOpen(true);
+  };
+
+  const closePreview = () => {
+    setIsPreviewOpen(false);
+    setPreviewTemplate(null);
+  };
   const templates = [
     {
       id: 1,
@@ -330,17 +482,7 @@ export default function Templates() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
               className="flex flex-col sm:flex-row gap-4 justify-center"
-            >
-              <Link to="/builder">
-                <EnhancedButton
-                  size="lg"
-                  variant="premium"
-                  className="px-8 py-4 text-lg"
-                >
-                  Use This Template
-                </EnhancedButton>
-              </Link>
-            </motion.div>
+            />
           </div>
         </div>
       </section>
@@ -426,6 +568,7 @@ export default function Templates() {
                       variant="outline"
                       size="lg"
                       className="px-6 py-3"
+                      onClick={() => openPreview(template)}
                     >
                       <Eye className="w-5 h-5 mr-2" />
                       Preview
@@ -451,33 +594,12 @@ export default function Templates() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-r from-blue-600 to-purple-700 text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-black opacity-10"></div>
-        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <h2 className="text-4xl sm:text-5xl font-bold mb-6">
-              Ready to Create Your Resume?
-            </h2>
-            <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-              Use our template starting point and customize it with your
-              own information. Build your professional resume in minutes.
-            </p>
-            <Link to="/builder">
-              <EnhancedButton
-                size="lg"
-                className="bg-white hover:bg-gray-100 text-blue-600 text-lg px-12 py-4"
-              >
-                Start Building Now
-              </EnhancedButton>
-            </Link>
-          </motion.div>
-        </div>
-      </section>
+      {/* Template Preview Modal */}
+      <TemplatePreviewModal
+        template={previewTemplate}
+        isOpen={isPreviewOpen}
+        onClose={closePreview}
+      />
     </Layout>
   );
 }
