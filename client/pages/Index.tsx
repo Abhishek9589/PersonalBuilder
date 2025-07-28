@@ -125,7 +125,7 @@ export default function Index() {
                     variant="premium"
                     className="relative text-xl px-16 py-6 bg-gradient-to-r from-gray-900 to-black text-white rounded-3xl border border-white/20"
                   >
-                    Start Building Resume
+                    Resume Builder ✨
                   </EnhancedButton>
                 </div>
               </Link>
@@ -133,7 +133,7 @@ export default function Index() {
                 <EnhancedButton
                   size="lg"
                   variant="outline"
-                  className="text-xl px-16 py-6 rounded-3xl border-2 border-gray-300 hover:border-gray-500"
+                  className="text-xl px-12 py-6 rounded-3xl border-2 border-gray-300 hover:border-gray-500"
                 >
                   View Templates
                 </EnhancedButton>

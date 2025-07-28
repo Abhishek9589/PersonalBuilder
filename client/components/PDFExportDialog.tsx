@@ -11,7 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { EnhancedButton } from "@/components/ui/enhanced-button";
 import { Download, X, Eye } from "lucide-react";
-import ResumeTemplate from "@/components/ResumeTemplate";
+import EnhancedResumeTemplate from "@/components/EnhancedResumeTemplate";
+import { EnhancedStep, CustomSection } from "@/pages/Builder";
 
 interface PersonalInfo {
   name: string;
@@ -88,6 +89,8 @@ interface PDFExportDialogProps {
   fontFamily: string;
   fontSize: number;
   marginSize: number;
+  enhancedSteps: EnhancedStep[];
+  customSections: CustomSection[];
 }
 
 // Removed the old PrintableResume component - now using shared ResumeTemplate
@@ -96,7 +99,57 @@ export default function PDFExportDialog(props: PDFExportDialogProps) {
   const { isOpen, onClose, personalInfo } = props;
   const printRef = useRef<HTMLDivElement>(null);
 
-  const handlePrint = useReactToPrint({
+  const fallbackPrint = React.useCallback(() => {
+    // Fallback method using window.print
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert('Please allow popups to download the PDF');
+      return;
+    }
+
+    const printContent = printRef.current?.innerHTML;
+    if (!printContent) {
+      alert('Unable to generate PDF content');
+      return;
+    }
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>${personalInfo.name.replace(/\s+/g, "_")}_cv</title>
+          <style>
+            @page {
+              size: A4;
+              margin: 0;
+            }
+            @media print {
+              body {
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+              }
+            }
+            body {
+              margin: 0;
+              padding: 0;
+              font-family: Arial, sans-serif;
+            }
+          </style>
+        </head>
+        <body>
+          ${printContent}
+        </body>
+      </html>
+    `);
+
+    printWindow.document.close();
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 500);
+  }, [personalInfo.name]);
+
+  const reactToPrintFn = useReactToPrint({
     contentRef: printRef,
     documentTitle: `${personalInfo.name.replace(/\s+/g, "_")}_cv`,
     pageStyle: `
@@ -111,7 +164,55 @@ export default function PDFExportDialog(props: PDFExportDialogProps) {
         }
       }
     `,
+    onBeforeGetContent: () => {
+      console.log('Getting content for print...', printRef.current);
+      // Ensure content is ready before printing
+      return new Promise((resolve) => {
+        setTimeout(resolve, 100);
+      });
+    },
+    onAfterPrint: () => {
+      console.log('Print completed');
+    },
+    onPrintError: (errorLocation, error) => {
+      console.error('Print error:', errorLocation, error);
+      console.log('Attempting fallback print method...');
+      setTimeout(() => fallbackPrint(), 100);
+    }
   });
+
+  const safePrint = () => {
+    console.log('safePrint called', { printRef: printRef.current, name: personalInfo.name });
+
+    if (!personalInfo.name) {
+      alert('Please fill in your name before downloading.');
+      return;
+    }
+
+    if (!printRef.current) {
+      console.error('Print ref not available, using fallback');
+      fallbackPrint();
+      return;
+    }
+
+    try {
+      console.log('Calling react-to-print...');
+      reactToPrintFn();
+    } catch (error) {
+      console.error('React-to-print failed, using fallback:', error);
+      fallbackPrint();
+    }
+  };
+
+  // Debug effect to track ref availability
+  React.useEffect(() => {
+    console.log('PDFExportDialog mounted, printRef:', printRef.current);
+    if (isOpen) {
+      setTimeout(() => {
+        console.log('After delay, printRef:', printRef.current);
+      }, 200);
+    }
+  }, [isOpen]);
 
   if (!personalInfo.name) {
     return null;
@@ -140,7 +241,7 @@ export default function PDFExportDialog(props: PDFExportDialogProps) {
                   Preview
                 </h3>
                 <EnhancedButton
-                  onClick={handlePrint}
+                  onClick={safePrint}
                   className="font-roboto"
                   size="lg"
                 >
@@ -158,7 +259,7 @@ export default function PDFExportDialog(props: PDFExportDialogProps) {
                     transformOrigin: "top center"
                   }}
                 >
-                  <ResumeTemplate
+                  <EnhancedResumeTemplate
                     personalInfo={props.personalInfo}
                     summary={props.summary}
                     skills={props.skills}
@@ -171,6 +272,8 @@ export default function PDFExportDialog(props: PDFExportDialogProps) {
                     fontFamily={props.fontFamily}
                     fontSize={props.fontSize}
                     marginSize={props.marginSize}
+                    enhancedSteps={props.enhancedSteps}
+                    customSections={props.customSections}
                   />
                 </div>
               </div>
@@ -187,7 +290,7 @@ export default function PDFExportDialog(props: PDFExportDialogProps) {
                 Close
               </Button>
               <EnhancedButton
-                onClick={handlePrint}
+                onClick={safePrint}
                 className="font-roboto"
                 size="lg"
               >
@@ -200,8 +303,15 @@ export default function PDFExportDialog(props: PDFExportDialogProps) {
       </Dialog>
 
       {/* Hidden Full-Size - WITH REF for printing */}
-      <div style={{ display: "none" }}>
-        <ResumeTemplate
+      <div style={{
+        position: 'absolute',
+        top: '-9999px',
+        left: '-9999px',
+        width: '210mm',
+        height: '297mm',
+        overflow: 'hidden'
+      }}>
+        <EnhancedResumeTemplate
           ref={printRef}
           personalInfo={props.personalInfo}
           summary={props.summary}
@@ -215,6 +325,8 @@ export default function PDFExportDialog(props: PDFExportDialogProps) {
           fontFamily={props.fontFamily}
           fontSize={props.fontSize}
           marginSize={props.marginSize}
+          enhancedSteps={props.enhancedSteps}
+          customSections={props.customSections}
         />
       </div>
     </>
