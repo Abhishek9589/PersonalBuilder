@@ -46,7 +46,7 @@ export default function PDFExportDialog(props) {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>${personalInfo.name.replace(/\s+/g, "_")}_cv</title>
+          <title>${(personalInfo?.name || 'resume').replace(/\s+/g, "_")}_cv</title>
           <style>
             @page {
               size: A4;
@@ -76,11 +76,11 @@ export default function PDFExportDialog(props) {
       printWindow.print();
       printWindow.close();
     }, 500);
-  }, [personalInfo.name]);
+  }, [personalInfo?.name]);
 
   const reactToPrintFn = useReactToPrint({
     contentRef: printRef,
-    documentTitle: `${personalInfo.name.replace(/\s+/g, "_")}_cv`,
+    documentTitle: `${(personalInfo?.name || 'resume').replace(/\s+/g, "_")}_cv`,
     pageStyle: `
       @page {
         size: A4;
@@ -111,9 +111,9 @@ export default function PDFExportDialog(props) {
   });
 
   const safePrint = () => {
-    console.log('safePrint called', { printRef: printRef.current, name: personalInfo.name });
+    console.log('safePrint called', { printRef: printRef.current, name: personalInfo?.name });
 
-    if (!personalInfo.name) {
+    if (!personalInfo || !personalInfo.name) {
       alert('Please fill in your name before downloading.');
       return;
     }
@@ -143,7 +143,7 @@ export default function PDFExportDialog(props) {
     }
   }, [isOpen]);
 
-  if (!personalInfo.name) {
+  if (!personalInfo || !personalInfo.name) {
     return null;
   }
 

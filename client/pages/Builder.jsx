@@ -78,6 +78,13 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import ProfileManager from "@/components/ProfileManager";
+import {
+  getAllProfiles,
+  getCurrentProfileId,
+  getProfile,
+  updateProfileData
+} from "@/lib/profileStorage";
 
 const FONT_CATEGORIES = {
   "sans-serif": {
@@ -230,12 +237,11 @@ function SortableStep({ step, index, isActive, isCompleted, onClick, onToggle, o
                 : "text-gray-600 hover:bg-gray-100 hover:shadow-md"
       }`}
       whileHover={{
-        scale: 1.03,
         x: 4,
         transition: { type: "spring", stiffness: 300, damping: 20 }
       }}
       whileTap={{
-        scale: 0.97,
+        scale: 0.98,
         transition: { type: "spring", stiffness: 400, damping: 25 }
       }}
       initial={{ opacity: 0, x: -20 }}
@@ -398,6 +404,10 @@ export default function Builder() {
   const [showPreview, setShowPreview] = useState(false);
   const [showPDFExport, setShowPDFExport] = useState(false);
 
+  // Profile management state
+  const [currentProfile, setCurrentProfile] = useState(null);
+  const [showProfileManager, setShowProfileManager] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
   const [fontFamily, setFontFamily] = useState("Roboto");
   const [fontCategory, setFontCategory] = useState("sans-serif");
@@ -459,50 +469,83 @@ export default function Builder() {
     })
   );
 
-  // Load data from localStorage on mount
+  // Load profile data on mount
   useEffect(() => {
-    const savedData = localStorage.getItem("resumeBuilderData");
-    if (savedData) {
-      try {
-        const data = JSON.parse(savedData);
-        setPersonalInfo(data.personalInfo || personalInfo);
-        setSummary(data.summary || "");
-        setSkills(
-          data.skills || {
-            programmingLanguages: [],
-            webTechnologies: [],
-            frameworksLibraries: [],
-            databases: [],
-            toolsPlatforms: [],
-            cloudHosting: [],
-            otherTechnical: [],
-          },
-        );
-        setExperiences(data.experiences || []);
-        setProjects(data.projects || []);
-        setEducation((data.education || []).map((edu) => ({
-          ...edu,
-          location: edu.location || ""
-        })));
-        setCertifications(data.certifications || []);
-        setAchievements(data.achievements || []);
-        setInterests(data.interests || "");
-        setFontFamily(data.fontFamily || "Roboto");
-        setFontCategory(data.fontCategory || "sans-serif");
-        setFontSize(data.fontSize || 12);
-        setMarginSize(data.marginSize || 24);
-        setCurrentStep(data.currentStep || 0);
-        setCustomSkillInputs(data.customSkillInputs || {});
-        setEnhancedSteps(data.enhancedSteps || DEFAULT_STEPS);
-        setCustomSections(data.customSections || []);
-      } catch (error) {
-        console.error("Error loading saved data:", error);
+    const profileId = getCurrentProfileId();
+    if (profileId) {
+      const profile = getProfile(profileId);
+      if (profile) {
+        setCurrentProfile(profile);
+        loadProfileData(profile);
+      } else {
+        setShowProfileManager(true);
       }
+    } else {
+      setShowProfileManager(true);
     }
   }, []);
 
-  // Save data to localStorage whenever state changes
+  // Function to load data from profile
+  const loadProfileData = (profile) => {
+    if (!profile?.data) return;
+
+    const data = profile.data;
+    setPersonalInfo(data.personalInfo || {
+      name: "",
+      phone: "",
+      email: "",
+      linkedin: "",
+      github: "",
+      portfolio: "",
+      address: "",
+    });
+    setSummary(data.summary || "");
+    // Handle skills migration from old array format to new object format
+    let skillsData = data.skills;
+    if (Array.isArray(skillsData)) {
+      // Migrate old array format to new object format
+      skillsData = {
+        programmingLanguages: skillsData,
+        webTechnologies: [],
+        frameworksLibraries: [],
+        databases: [],
+        toolsPlatforms: [],
+        cloudHosting: [],
+        otherTechnical: [],
+      };
+    }
+    setSkills(skillsData || {
+      programmingLanguages: [],
+      webTechnologies: [],
+      frameworksLibraries: [],
+      databases: [],
+      toolsPlatforms: [],
+      cloudHosting: [],
+      otherTechnical: [],
+    });
+    setExperiences(data.experiences || []);
+    setProjects(data.projects || []);
+    setEducation((data.education || []).map((edu) => ({
+      ...edu,
+      location: edu.location || ""
+    })));
+    setCertifications(data.certifications || []);
+    setAchievements(data.achievements || []);
+    setInterests(data.interests || "");
+    setFontFamily(data.fontFamily || "Roboto");
+    setFontCategory(data.fontCategory || "sans-serif");
+    setFontSize(data.fontSize || 12);
+    setMarginSize(data.marginSize || 24);
+    setCurrentStep(data.currentStep || 0);
+    setCustomSkillInputs(data.customSkillInputs || {});
+    setEnhancedSteps(data.enhancedSteps || DEFAULT_STEPS);
+    setCustomSections(data.customSections || []);
+  };
+
+  // Save data to profile whenever state changes
   useEffect(() => {
+    if (!currentProfile) return;
+
     const dataToSave = {
       personalInfo,
       summary,
@@ -522,8 +565,10 @@ export default function Builder() {
       enhancedSteps,
       customSections,
     };
-    localStorage.setItem("resumeBuilderData", JSON.stringify(dataToSave));
+
+    updateProfileData(currentProfile.id, dataToSave);
   }, [
+    currentProfile,
     personalInfo,
     summary,
     skills,
@@ -573,13 +618,13 @@ export default function Builder() {
   const hasOptionalStepContent = (stepId) => {
     switch (stepId) {
       case "experience":
-        return experiences.length > 0;
+        return experiences && experiences.length > 0;
       case "certifications":
-        return certifications.length > 0;
+        return certifications && certifications.length > 0;
       case "achievements":
-        return achievements.length > 0;
+        return achievements && achievements.length > 0;
       case "interests":
-        return interests.trim().length > 0;
+        return interests && interests.trim().length > 0;
       default:
         return false;
     }
@@ -588,19 +633,20 @@ export default function Builder() {
   const getATSRecommendations = () => {
     const recommendations = [];
 
-    if (!personalInfo.linkedin)
+    // Add null checks to prevent errors when state is not initialized
+    if (personalInfo && !personalInfo.linkedin)
       recommendations.push("Add LinkedIn profile URL to increase visibility");
-    if (!personalInfo.github)
+    if (personalInfo && !personalInfo.github)
       recommendations.push("Add GitHub profile for tech roles");
-    if (summary.length < 100)
+    if (summary && summary.length < 100)
       recommendations.push("Expand summary to 2-3 detailed sentences");
-    if (projects.length < 2)
+    if (projects && projects.length < 2)
       recommendations.push("Add more projects to showcase your skills");
-    if (experiences.length === 0)
+    if (experiences && experiences.length === 0)
       recommendations.push("Add work experience or internships");
-    if (skills.databases.length === 0)
+    if (skills && skills.databases && skills.databases.length === 0)
       recommendations.push("Add database skills for better tech positioning");
-    if (projects.some((p) => !p.githubLink))
+    if (projects && projects.length > 0 && projects.some((p) => !p.githubLink))
       recommendations.push("Add GitHub links to all projects");
 
     return recommendations;
@@ -642,6 +688,19 @@ export default function Builder() {
           duration: 2000,
         });
       }, 100);
+    }
+  };
+
+  // Profile selection handlers
+  const handleProfileSelected = (profile) => {
+    if (profile) {
+      setCurrentProfile(profile);
+      loadProfileData(profile);
+      setShowProfileManager(false);
+      toast.success(`Loaded profile: ${profile.name}`);
+    } else {
+      setCurrentProfile(null);
+      setShowProfileManager(true);
     }
   };
 
@@ -845,7 +904,7 @@ export default function Builder() {
   const resumeRef = useRef(null);
 
   const handleDownload = () => {
-    if (!personalInfo.name || personalInfo.name.trim().length === 0) {
+    if (!personalInfo || !personalInfo.name || personalInfo.name.trim().length === 0) {
       alert("Please fill in your name before downloading.");
       return;
     }
@@ -853,6 +912,7 @@ export default function Builder() {
   };
 
   const nextStep = () => {
+    if (!enhancedSteps) return;
     // Find next enabled step
     let nextStepIndex = currentStep + 1;
     while (nextStepIndex < enhancedSteps.length && !enhancedSteps[nextStepIndex].enabled) {
@@ -864,6 +924,7 @@ export default function Builder() {
   };
 
   const prevStep = () => {
+    if (!enhancedSteps) return;
     // Find previous enabled step
     let prevStepIndex = currentStep - 1;
     while (prevStepIndex >= 0 && !enhancedSteps[prevStepIndex].enabled) {
@@ -880,8 +941,46 @@ export default function Builder() {
     // Add a small delay for smooth transition
     await new Promise(resolve => setTimeout(resolve, 800));
 
-    // Clear localStorage
-    localStorage.removeItem("resumeBuilderData");
+    // Reset current profile data if there's an active profile
+    if (currentProfile) {
+      const resetData = {
+        personalInfo: {
+          name: "",
+          phone: "",
+          email: "",
+          linkedin: "",
+          github: "",
+          portfolio: "",
+          address: "",
+        },
+        summary: "",
+        skills: {
+          programmingLanguages: [],
+          webTechnologies: [],
+          frameworksLibraries: [],
+          databases: [],
+          toolsPlatforms: [],
+          cloudHosting: [],
+          otherTechnical: [],
+        },
+        experiences: [],
+        projects: [],
+        education: [],
+        certifications: [],
+        achievements: [],
+        interests: "",
+        fontFamily: "Roboto",
+        fontCategory: "sans-serif",
+        fontSize: 12,
+        marginSize: 24,
+        currentStep: 0,
+        customSkillInputs: {},
+        enhancedSteps: DEFAULT_STEPS,
+        customSections: []
+      };
+
+      updateProfileData(currentProfile.id, resetData);
+    }
 
     // Reset all state to initial values
     setCurrentStep(0);
@@ -920,11 +1019,13 @@ export default function Builder() {
     setAchievements([]);
     setInterests("");
     setCustomSkillInputs({});
+    setEnhancedSteps(DEFAULT_STEPS);
+    setCustomSections([]);
 
     setIsLoading(false);
 
-    // Navigate back to home page
-    navigate("/");
+    // Show success message
+    toast.success('Resume data reset successfully');
   };
 
   const goToStep = (stepIndex) => {
@@ -957,43 +1058,46 @@ export default function Builder() {
   };
 
   const isStepComplete = (stepIndex) => {
+    if (!enhancedSteps || !enhancedSteps[stepIndex]) return false;
     const step = enhancedSteps[stepIndex];
 
     switch (step.id) {
       case "header":
         return Boolean(
+          personalInfo &&
           personalInfo.name &&
           personalInfo.email &&
           personalInfo.phone &&
           personalInfo.address
         );
       case "summary":
-        return !step.required || summary.trim().length > 0;
+        return !step.required || (summary && summary.trim().length > 0);
       case "skills":
         return !step.required || Boolean(
-          skills.programmingLanguages.length > 0 ||
-          skills.frameworksLibraries.length > 0 ||
-          skills.webTechnologies.length > 0 ||
-          skills.databases.length > 0 ||
-          skills.toolsPlatforms.length > 0 ||
-          skills.cloudHosting.length > 0 ||
-          skills.otherTechnical.length > 0
+          skills &&
+          (skills.programmingLanguages?.length > 0 ||
+          skills.frameworksLibraries?.length > 0 ||
+          skills.webTechnologies?.length > 0 ||
+          skills.databases?.length > 0 ||
+          skills.toolsPlatforms?.length > 0 ||
+          skills.cloudHosting?.length > 0 ||
+          skills.otherTechnical?.length > 0)
         );
       case "experience":
-        return !step.required || Boolean(experiences.length === 0 || experiences.every((e) => e.position && e.company));
+        return !step.required || Boolean(experiences && (experiences.length === 0 || experiences.every((e) => e.position && e.company)));
       case "projects":
         return !step.required || Boolean(
-          projects.length === 0 || projects.every((p) => p.name && p.techStack)
+          projects && (projects.length === 0 || projects.every((p) => p.name && p.techStack))
         );
       case "education":
         return !step.required || Boolean(
-          education.length === 0 ||
-          education.every((e) => e.institution && e.degree && e.year)
+          education && (education.length === 0 ||
+          education.every((e) => e.institution && e.degree && e.year))
         );
       case "certifications":
-        return Boolean(certifications.length === 0 || certifications.every((c) => c.title && c.organization));
+        return Boolean(certifications && (certifications.length === 0 || certifications.every((c) => c.title && c.organization)));
       case "achievements":
-        return Boolean(achievements.length === 0 || achievements.every((a) => a.description.trim().length > 0));
+        return Boolean(achievements && (achievements.length === 0 || achievements.every((a) => a.description && a.description.trim().length > 0)));
       case "interests":
         return true; // Always complete since it's optional
       case "customization":
@@ -1001,7 +1105,7 @@ export default function Builder() {
       default:
         // Handle custom sections
         if (step.isCustom && step.customSection) {
-          return !step.required || step.customSection.data.length > 0;
+          return !step.required || (step.customSection.data && step.customSection.data.length > 0);
         }
         return true; // Default to complete for unknown sections
     }
@@ -1115,6 +1219,7 @@ export default function Builder() {
   );
 
   const renderStepContent = () => {
+    if (!enhancedSteps || !enhancedSteps[currentStep]) return null;
     const step = enhancedSteps[currentStep];
 
     switch (step.id) {
@@ -1551,8 +1656,8 @@ export default function Builder() {
                                   ? "bg-black text-white shadow-md"
                                   : "bg-white border border-gray-200 hover:bg-gray-50 hover:shadow-sm"
                               }`}
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
+                              whileHover={{ backgroundColor: 'rgba(0,0,0,0.05)' }}
+                              whileTap={{ backgroundColor: 'rgba(0,0,0,0.1)' }}
                             >
                               <input
                                 type="checkbox"
@@ -2422,7 +2527,6 @@ export default function Builder() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                whileHover={{ scale: 1.02 }}
               >
                 <h4 className="font-roboto font-semibold text-black mb-4 flex items-center gap-2">
                   <Eye className="w-4 h-4" />
@@ -2521,8 +2625,8 @@ export default function Builder() {
     }
   };
 
-  const recommendations = getATSRecommendations();
-  const currentStepObj = enhancedSteps[currentStep];
+  const recommendations = currentProfile ? getATSRecommendations() : [];
+  const currentStepObj = enhancedSteps && enhancedSteps[currentStep];
 
   // Loading Component
   const LoadingOverlay = () => (
@@ -2544,6 +2648,56 @@ export default function Builder() {
       </motion.div>
     </div>
   );
+
+  // If no profile is selected, show profile manager
+  if (showProfileManager || !currentProfile) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50/30 via-white to-purple-50/20">
+        <motion.div
+          className="bg-white/90 backdrop-blur-xl border-b border-white/20 shadow-2xl shadow-black/5"
+          initial={{ y: -50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
+        >
+          <div className="container mx-auto px-6 py-4">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-4">
+                <div
+                  className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    window.location.assign("/");
+                  }}
+                  style={{ userSelect: "none" }}
+                >
+                  <Logo size="md" showText={true} />
+                </div>
+              </div>
+              <EnhancedButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  window.location.assign("/");
+                }}
+                variant="outline"
+                size="sm"
+              >
+                Home
+              </EnhancedButton>
+            </div>
+          </div>
+        </motion.div>
+
+        <div className="container mx-auto px-6 py-12">
+          <ProfileManager
+            onProfileSelected={handleProfileSelected}
+            currentProfileData={currentProfile}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50/30 via-white to-purple-50/20">
@@ -2571,9 +2725,25 @@ export default function Builder() {
               >
                 <Logo size="md" showText={true} />
               </div>
+              {currentProfile && (
+                <div className="flex items-center gap-2 px-3 py-1 bg-white/50 rounded-full border border-white/30">
+                  <User className="w-4 h-4 text-black" />
+                  <span className="text-sm font-medium text-black">{currentProfile.name}</span>
+                </div>
+              )}
             </div>
 
             <div className="flex items-center gap-4">
+              <EnhancedButton
+                onClick={() => setShowProfileManager(true)}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <Users className="w-4 h-4" />
+                Switch Profile
+              </EnhancedButton>
+
               <EnhancedButton
                 onClick={(e) => {
                   e.stopPropagation();
@@ -2800,8 +2970,8 @@ export default function Builder() {
                                 : "bg-gray-300 hover:bg-gray-400"
                           }`}
                           onClick={() => goToStep(originalIndex)}
-                          whileHover={{ scale: 1.4 }}
-                          whileTap={{ scale: 0.8 }}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
                           initial={{ opacity: 0, scale: 0 }}
                           animate={{
                             opacity: 1,
@@ -2876,6 +3046,42 @@ export default function Builder() {
         cancelText="Cancel"
         type="danger"
       />
+
+      {/* Profile Manager Modal */}
+      {showProfileManager && currentProfile && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setShowProfileManager(false)}
+        >
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            className="bg-white rounded-lg shadow-xl w-full max-w-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Switch Profile</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowProfileManager(false)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              <ProfileManager
+                onProfileSelected={handleProfileSelected}
+                currentProfileData={currentProfile}
+              />
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
 
       {/* Loading Overlay */}
       {isLoading && <LoadingOverlay />}
