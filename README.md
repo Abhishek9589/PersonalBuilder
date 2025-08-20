@@ -80,7 +80,7 @@ Open your web browser and go to the website URL (when deployed)
 ## 🛠 **Technical Overview (For Developers)**
 
 ### **Technology Stack**
-- **Frontend:** React 18 + TypeScript + Vite
+- **Frontend:** React 18 + Vite
 - **Styling:** TailwindCSS 3 + Radix UI Components
 - **Backend:** Express.js server for API endpoints
 - **Routing:** React Router 6 (SPA mode)
@@ -125,11 +125,10 @@ npm test          # Run test suite
 4. **Time-Saving** - Build a complete resume in 10-15 minutes
 
 ### **For Developers**
-1. **Modern Tech Stack** - Built with latest React, TypeScript, and Vite
+1. **Modern Tech Stack** - Built with latest React and Vite
 2. **Component-Based** - Reusable UI components with Radix UI
-3. **Type-Safe** - Full TypeScript support for reliability
-4. **Performance-Optimized** - Fast loading and smooth interactions
-5. **Mobile-First** - Responsive design that works on all devices
+3. **Performance-Optimized** - Fast loading and smooth interactions
+4. **Mobile-First** - Responsive design that works on all devices
 
 ---
 

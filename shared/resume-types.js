@@ -1,5 +1,4 @@
-// Enhanced resume types with section ordering and visibility
-// Using JSDoc for documentation instead of TypeScript interfaces
+
 
 // Default sections configuration
 export const DEFAULT_SECTIONS = [
