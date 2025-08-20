@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
+import notifications from '@/lib/notifications';
 import {
   Select,
   SelectContent,
@@ -354,12 +355,12 @@ export default function CustomSectionWizard({
 
   const handleSave = () => {
     if (!sectionName.trim()) {
-      alert('Please enter a section name');
+      notifications.error('Section name required', 'Please enter a section name before creating.');
       return;
     }
 
     if (fields.length === 0) {
-      alert('Please add at least one field');
+      notifications.error('Fields required', 'Please add at least one field to your custom section.');
       return;
     }
 

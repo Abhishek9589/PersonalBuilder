@@ -40,7 +40,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { toast } from 'sonner';
+import notifications from '@/lib/notifications';
 
 const iconMap = {
   User,
@@ -78,7 +78,7 @@ function SortableSection({
     opacity: isDragging ? 0.5 : 1,
   };
 
-  const IconComponent = iconMap[SECTION_ICONS[section.type]] || iconMap];
+  const IconComponent = iconMap[SECTION_ICONS[section.type]] || iconMap.FileText;
 
   return (
     <motion.div
@@ -226,10 +226,7 @@ export default function SectionManager({
       
       // Show success toast with debounce
       setTimeout(() => {
-        toast.success('Section order updated', {
-          description: 'Your resume section order has been saved.',
-          duration: 2000,
-        });
+        notifications.section.moved();
       }, 100);
     }
   };

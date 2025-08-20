@@ -49,7 +49,7 @@ import {
   saveProfile,
   generateProfileId
 } from "@/lib/profileStorage";
-import { toast } from "sonner";
+import notifications from "@/lib/notifications";
 import { motion, AnimatePresence } from "framer-motion";
 
 const ProfileManager = ({ onProfileSelected, currentProfileData }) => {
@@ -94,11 +94,11 @@ const ProfileManager = ({ onProfileSelected, currentProfileData }) => {
         setCurrentProfileId(profileId);
         setCurrentProfile(profileId);
         onProfileSelected(profile);
-        toast.success(`Switched to "${profile.name}" profile`);
+        notifications.profile.switched(profile.name);
       }
     } catch (error) {
       console.error('Error selecting profile:', error);
-      toast.error('Failed to load profile');
+      notifications.profile.loadError();
     } finally {
       setIsLoading(false);
     }
@@ -136,14 +136,14 @@ const ProfileManager = ({ onProfileSelected, currentProfileData }) => {
       
       const success = saveProfile(clonedProfile);
       if (success) {
-        toast.success(`Profile "${clonedProfile.name}" created successfully!`);
+        notifications.profile.cloned(clonedProfile.name);
         loadProfiles();
       } else {
-        toast.error('Failed to clone profile');
+        notifications.profile.cloneError();
       }
     } catch (error) {
       console.error('Error cloning profile:', error);
-      toast.error('Failed to clone profile');
+      notifications.profile.cloneError();
     }
   };
 
@@ -151,7 +151,7 @@ const ProfileManager = ({ onProfileSelected, currentProfileData }) => {
     if (profileToDelete) {
       const success = deleteProfile(profileToDelete.id);
       if (success) {
-        toast.success(`Profile "${profileToDelete.name}" deleted`);
+        notifications.profile.deleted(profileToDelete.name);
         loadProfiles();
         
         // If we deleted the current profile, switch to another one or clear selection
@@ -165,7 +165,7 @@ const ProfileManager = ({ onProfileSelected, currentProfileData }) => {
           }
         }
       } else {
-        toast.error('Failed to delete profile');
+        notifications.profile.deleteError();
       }
     }
     setDeleteDialogOpen(false);
@@ -182,7 +182,7 @@ const ProfileManager = ({ onProfileSelected, currentProfileData }) => {
       
       const success = saveProfile(updatedProfile);
       if (success) {
-        toast.success(`Profile renamed to "${updatedProfile.name}"`);
+        notifications.profile.renamed(updatedProfile.name);
         loadProfiles();
         
         // If we edited the current profile, update the current profile data
@@ -190,7 +190,7 @@ const ProfileManager = ({ onProfileSelected, currentProfileData }) => {
           onProfileSelected(updatedProfile);
         }
       } else {
-        toast.error('Failed to update profile');
+        notifications.profile.updateError();
       }
     }
     setEditDialogOpen(false);

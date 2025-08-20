@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
-import { toast } from 'sonner';
-
+import notifications from '@/lib/notifications';
 
 export default function KeyboardShortcuts({
   onTogglePreview,
@@ -8,9 +7,9 @@ export default function KeyboardShortcuts({
   onShowHelp,
   onDownload,
   currentView,
-})) {
+}) {
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
+    const handleKeyDown = (event) => {
       // Only trigger shortcuts if not typing in an input
       if (
         event.target instanceof HTMLInputElement ||
@@ -26,17 +25,17 @@ export default function KeyboardShortcuts({
           case 'p':
             event.preventDefault();
             onTogglePreview();
-            toast.info('Switched to preview mode', { duration: 1500 });
+            notifications.shortcuts.preview();
             break;
           case 's':
             event.preventDefault();
             onToggleSections();
-            toast.info('Switched to sections mode', { duration: 1500 });
+            notifications.shortcuts.sections();
             break;
           case 'd':
             event.preventDefault();
             onDownload();
-            toast.info('Downloading resume...', { duration: 1500 });
+            notifications.shortcuts.download();
             break;
           case '/':
           case '?':
@@ -51,7 +50,7 @@ export default function KeyboardShortcuts({
         case 'escape':
           if (currentView !== 'sections') {
             onToggleSections();
-            toast.info('Returned to sections', { duration: 1500 });
+            notifications.shortcuts.returned();
           }
           break;
       }

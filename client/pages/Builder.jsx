@@ -77,7 +77,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Switch } from "@/components/ui/switch";
-import { toast } from "sonner";
+import notifications from "@/lib/notifications";
 import ProfileManager from "@/components/ProfileManager";
 import {
   getAllProfiles,
@@ -714,10 +714,7 @@ export default function Builder() {
     if (active.id !== over?.id) {
       // Prevent dragging customization section
       if (active.id === 'customization' || over?.id === 'customization') {
-        toast.error('Customization section cannot be moved', {
-          description: 'The customization section must remain at the bottom.',
-          duration: 2000,
-        });
+        notifications.section.cannotMove();
         return;
       }
 
@@ -733,10 +730,7 @@ export default function Builder() {
 
       // Show success toast with debounce
       setTimeout(() => {
-        toast.success('Section order updated', {
-          description: 'Your resume section order has been saved.',
-          duration: 2000,
-        });
+        notifications.section.moved();
       }, 100);
     }
   };
@@ -747,7 +741,7 @@ export default function Builder() {
       setCurrentProfile(profile);
       loadProfileData(profile);
       setShowProfileManager(false);
-      toast.success(`Loaded profile: ${profile.name}`);
+      notifications.profile.loaded(profile.name);
     } else {
       setCurrentProfile(null);
       setShowProfileManager(true);
@@ -766,10 +760,11 @@ export default function Builder() {
 
     const step = enhancedSteps.find(s => s.id === stepId);
     if (step) {
-      toast.success(step.enabled ? 'Section hidden' : 'Section enabled', {
-        description: `${step.title} is now ${step.enabled ? 'hidden from' : 'included in'} your resume.`,
-        duration: 2000,
-      });
+      if (step.enabled) {
+        notifications.section.disabled(step.title);
+      } else {
+        notifications.section.enabled(step.title);
+      }
     }
   };
 
@@ -803,10 +798,7 @@ export default function Builder() {
     setCustomSections([...customSections, newCustomSection]);
     setEnhancedSteps([...updatedSteps, newStep]);
 
-    toast.success('Custom section created', {
-      description: `${newCustomSection.name} has been added to your resume.`,
-      duration: 3000,
-    });
+    notifications.section.created(newCustomSection.name);
   };
 
   const deleteCustomSection = (sectionId) => {
@@ -830,10 +822,7 @@ export default function Builder() {
       setCurrentStep(newCurrentStep);
     }
 
-    toast.success('Custom section deleted', {
-      description: `${sectionToDelete.title} has been removed from your resume.`,
-      duration: 3000,
-    });
+    notifications.section.deleted(sectionToDelete.title);
   };
 
   const addExperience = () => {
@@ -955,7 +944,7 @@ export default function Builder() {
 
   const handleDownload = () => {
     if (!personalInfo || !personalInfo.name || personalInfo.name.trim().length === 0) {
-      alert("Please fill in your name before downloading.");
+      notifications.error('Name required', 'Please fill in your name before downloading.');
       return;
     }
     setShowPDFExport(true);
@@ -1075,7 +1064,7 @@ export default function Builder() {
     setIsLoading(false);
 
     // Show success message
-    toast.success('Resume data reset successfully');
+    notifications.app.reset();
   };
 
   const goToStep = (stepIndex) => {
@@ -1083,10 +1072,7 @@ export default function Builder() {
 
     // Prevent navigation to disabled sections
     if (!targetStep.enabled) {
-      toast.error('Section is disabled', {
-        description: `${targetStep.title} section is currently hidden from your resume.`,
-        duration: 2000,
-      });
+      notifications.section.isDisabled(targetStep.title);
       return;
     }
 
@@ -1097,8 +1083,9 @@ export default function Builder() {
     if (stepIndex > currentStep && currentStepObj.required && currentStepObj.id === 'header') {
       // Check if current required step has minimum data
       if (!isStepComplete(currentStep)) {
-        alert(
-          `Please complete the required fields in ${currentStepObj.title} section before proceeding.`,
+        notifications.error(
+          'Required fields missing',
+          `Please complete the required fields in ${currentStepObj.title} section before proceeding.`
         );
         return;
       }

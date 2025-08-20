@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { EnhancedButton } from "@/components/ui/enhanced-button";
 import { Card, CardContent } from "@/components/ui/card";
 import Layout from "@/components/Layout";
+import NotificationTest from "@/components/NotificationTest";
 
 export default function Index() {
   const features = [
@@ -447,6 +448,21 @@ export default function Index() {
               ))}
             </motion.div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Notification Test Section - Temporary for demonstration */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              🔔 Notification System Demo
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Test the new unified notification system that shows all notifications in the bottom-right corner with beautiful animations and proper styling.
+            </p>
+          </div>
+          <NotificationTest />
         </div>
       </section>
     </Layout>

@@ -260,3 +260,192 @@ html {
 .slider::-moz-range-thumb:hover {
   background: #333333;
 }
+
+/* Enhanced Notification Styles */
+[data-sonner-toaster] {
+  z-index: 99999 !important;
+  bottom: 20px !important;
+  right: 20px !important;
+}
+
+/* Force all Sonner toasts to have relative positioning */
+[data-sonner-toaster] > * {
+  position: relative !important;
+}
+
+[data-sonner-toast] {
+  animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #E0E0E0 !important;
+  background: white !important;
+  color: black !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  padding: 12px 42px 12px 16px !important;
+  min-width: 320px !important;
+  max-width: 420px !important;
+  overflow: visible !important;
+  position: relative !important;
+  margin-bottom: 12px !important;
+  margin-top: 0 !important;
+}
+
+[data-sonner-toast]:not(:last-child) {
+  margin-bottom: 16px !important;
+}
+
+[data-sonner-toast][data-type="success"] {
+  border-left: 4px solid #1F2937 !important;
+}
+
+[data-sonner-toast][data-type="error"] {
+  border-left: 4px solid #EF4444 !important;
+}
+
+[data-sonner-toast][data-type="warning"] {
+  border-left: 4px solid #F59E0B !important;
+}
+
+[data-sonner-toast][data-type="info"] {
+  border-left: 4px solid #374151 !important;
+}
+
+[data-sonner-toast][data-type="loading"] {
+  border-left: 4px solid #6B7280 !important;
+}
+
+[data-sonner-toast] [data-title] {
+  font-weight: 600 !important;
+  color: black !important;
+  margin-bottom: 4px !important;
+  font-size: 14px !important;
+}
+
+[data-sonner-toast] [data-description] {
+  color: #555555 !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+  margin-top: 4px !important;
+}
+
+/* Ultra-specific close button targeting for Sonner */
+[data-sonner-toaster] [data-sonner-toast] button,
+[data-sonner-toaster] li button,
+[data-sonner-toast] button,
+li[data-sonner-toast] button,
+[data-close-button],
+button[data-close-button],
+[aria-label="Close toast"],
+button[aria-label="Close toast"] {
+  all: unset !important;
+  position: absolute !important;
+  top: 6px !important;
+  right: 6px !important;
+  width: 30px !important;
+  height: 30px !important;
+  background: rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid rgba(0, 0, 0, 0.2) !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 16px !important;
+  font-weight: bold !important;
+  color: #333 !important;
+  z-index: 1000 !important;
+  transition: all 0.2s ease !important;
+  flex-shrink: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Close button hover state */
+[data-sonner-toaster] [data-sonner-toast] button:hover,
+[data-sonner-toaster] li button:hover,
+[data-sonner-toast] button:hover,
+li[data-sonner-toast] button:hover,
+[data-close-button]:hover,
+button[data-close-button]:hover,
+[aria-label="Close toast"]:hover,
+button[aria-label="Close toast"]:hover {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border-color: rgba(0, 0, 0, 0.3) !important;
+  color: #111 !important;
+  transform: scale(1.05) !important;
+}
+
+/* Content area spacing to accommodate close button */
+[data-sonner-toast] [data-content],
+ol[data-sonner-toaster] li[data-sonner-toast] [data-content] {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding-right: 40px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Success notification icon styling */
+[data-sonner-toast][data-type="success"] [data-icon] {
+  color: #1F2937 !important;
+}
+
+/* Error notification icon styling */
+[data-sonner-toast][data-type="error"] [data-icon] {
+  color: #EF4444 !important;
+}
+
+/* Warning notification icon styling */
+[data-sonner-toast][data-type="warning"] [data-icon] {
+  color: #F59E0B !important;
+}
+
+/* Info notification icon styling */
+[data-sonner-toast][data-type="info"] [data-icon] {
+  color: #374151 !important;
+}
+
+/* Animation for notifications */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Ensure notifications are above all other content */
+.toast-notification {
+  z-index: 99999 !important;
+}
+
+/* Additional targeting for Sonner toaster structure */
+ol[data-sonner-toaster] {
+  z-index: 99999 !important;
+}
+
+ol[data-sonner-toaster] li[data-sonner-toast] {
+  position: relative !important;
+  margin-bottom: 12px !important;
+  overflow: visible !important;
+}
+
+/* Force close button to top-right corner on ALL Sonner toast variants */
+[data-sonner-toaster] [data-sonner-toast] button:last-child,
+ol[data-sonner-toaster] li button:last-child,
+[data-sonner-toast]:has(button) button:last-child {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  width: 28px !important;
+  height: 28px !important;
+  background: rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid rgba(0, 0, 0, 0.15) !important;
+  border-radius: 6px !important;
+  z-index: 999 !important;
+}

@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { User, AlertCircle } from "lucide-react";
 import { createDefaultProfile, saveProfile, setCurrentProfileId } from "@/lib/profileStorage";
-import { toast } from "sonner";
+import notifications from "@/lib/notifications";
 
 const ProfileCreationModal = ({ isOpen, onClose, onProfileCreated }) => {
   const [profileName, setProfileName] = useState('');
@@ -39,7 +39,7 @@ const ProfileCreationModal = ({ isOpen, onClose, onProfileCreated }) => {
       
       if (success) {
         setCurrentProfileId(newProfile.id);
-        toast.success(`Profile "${newProfile.name}" created successfully!`);
+        notifications.profile.created(newProfile.name);
         onProfileCreated(newProfile);
         onClose();
         setProfileName('');

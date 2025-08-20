@@ -13,6 +13,7 @@ import { EnhancedButton } from "@/components/ui/enhanced-button";
 import { Download, X, Eye } from "lucide-react";
 import EnhancedResumeTemplate from "@/components/EnhancedResumeTemplate";
 import { EnhancedStep, CustomSection } from "@/pages/Builder";
+import notifications from "@/lib/notifications";
 
 
 
@@ -32,13 +33,13 @@ export default function PDFExportDialog(props) {
     // Fallback method using window.print
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
-      alert('Please allow popups to download the PDF');
+      notifications.error('Popup blocked', 'Please allow popups to download the PDF.');
       return;
     }
 
     const printContent = printRef.current?.innerHTML;
     if (!printContent) {
-      alert('Unable to generate PDF content');
+      notifications.error('PDF generation failed', 'Unable to generate PDF content. Please try again.');
       return;
     }
 
@@ -114,7 +115,7 @@ export default function PDFExportDialog(props) {
     console.log('safePrint called', { printRef: printRef.current, name: personalInfo?.name });
 
     if (!personalInfo || !personalInfo.name) {
-      alert('Please fill in your name before downloading.');
+      notifications.error('Name required', 'Please fill in your name before downloading.');
       return;
     }
 
