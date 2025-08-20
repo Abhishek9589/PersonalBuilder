@@ -11,6 +11,7 @@ export default function Layout({ children }) {
     { name: "Home", path: "/" },
     { name: "Templates", path: "/templates" },
     { name: "About", path: "/about" },
+    { name: "Contact Us", path: "/contact" },
   ];
 
   const isActive = (path) => location.pathname === path;

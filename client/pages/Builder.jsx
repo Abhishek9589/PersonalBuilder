@@ -393,10 +393,37 @@ export const FieldType = {
 };
 
 // Example structures for components
-export const CustomSection = {};
-export const CustomField = {};
-export const CustomSectionData = {};
-export const EnhancedStep = {};
+export const CustomSection = {
+  id: '',
+  name: '',
+  enabled: true,
+  order: 0,
+  layout: 'one-column', // 'one-column', 'two-column'
+  fields: []
+};
+
+export const CustomField = {
+  id: '',
+  name: '',
+  type: 'text', // FieldType values
+  required: false,
+  placeholder: '',
+  options: [] // for select fields
+};
+
+export const CustomSectionData = {
+  sectionId: '',
+  data: {}
+};
+
+export const EnhancedStep = {
+  id: '',
+  name: '',
+  icon: null,
+  required: false,
+  enabled: true,
+  order: 0
+};
 
 export default function Builder() {
   const navigate = useNavigate();
@@ -485,19 +512,42 @@ export default function Builder() {
     }
   }, []);
 
+  // Initialize customSkillInputs for all skill categories to prevent controlled/uncontrolled input warnings
+  useEffect(() => {
+    const SKILL_CATEGORIES_KEYS = [
+      'programmingLanguages',
+      'webTechnologies',
+      'frameworksLibraries',
+      'databases',
+      'toolsPlatforms',
+      'cloudHosting',
+      'otherTechnical'
+    ];
+
+    setCustomSkillInputs(prev => {
+      const initialized = { ...prev };
+      SKILL_CATEGORIES_KEYS.forEach(categoryKey => {
+        if (!(categoryKey in initialized)) {
+          initialized[categoryKey] = "";
+        }
+      });
+      return initialized;
+    });
+  }, []);
+
   // Function to load data from profile
   const loadProfileData = (profile) => {
     if (!profile?.data) return;
 
     const data = profile.data;
-    setPersonalInfo(data.personalInfo || {
-      name: "",
-      phone: "",
-      email: "",
-      linkedin: "",
-      github: "",
-      portfolio: "",
-      address: "",
+    setPersonalInfo({
+      name: data.personalInfo?.name || "",
+      phone: data.personalInfo?.phone || "",
+      email: data.personalInfo?.email || "",
+      linkedin: data.personalInfo?.linkedin || "",
+      github: data.personalInfo?.github || "",
+      portfolio: data.personalInfo?.portfolio || "",
+      address: data.personalInfo?.address || "",
     });
     setSummary(data.summary || "");
     // Handle skills migration from old array format to new object format
@@ -1418,25 +1468,29 @@ export default function Builder() {
             skills: [
               "C",
               "C++",
-              "C#",
               "Java",
-              "Kotlin",
-              "Scala",
               "Python",
-              "Ruby",
-              "PHP",
-              "Perl",
-              "JavaScript (ES6+)",
+              "JavaScript (JS)",
               "TypeScript",
-              "Go",
-              "Rust",
+              "PHP",
+              "Ruby",
               "Swift",
-              "Objective‑C",
-              "R",
+              "Kotlin",
+              "Objective-C",
+              "Go (Golang)",
+              "Rust",
               "Dart",
-              "Julia",
-              "Shell Scripting (Bash, Zsh, PowerShell)",
+              "R",
               "MATLAB",
+              "Perl",
+              "Scala",
+              "Haskell",
+              "Lua",
+              "Julia",
+              "Shell Scripting (Bash, Zsh)",
+              "PowerShell",
+              "Assembly (x86, ARM, MIPS)",
+              "C#",
             ],
           },
           webTechnologies: {
@@ -1445,16 +1499,21 @@ export default function Builder() {
             skills: [
               "HTML5",
               "CSS3",
-              "SCSS / SASS",
-              "Less",
+              "SASS / SCSS",
+              "LESS",
               "Tailwind CSS",
               "Bootstrap",
-              "JSON",
+              "Materialize",
+              "JavaScript (ES6+)",
+              "TypeScript",
+              "WebAssembly",
               "XML",
-              "REST APIs",
-              "SOAP",
-              "GraphQL",
+              "JSON",
+              "AJAX",
               "WebSockets",
+              "REST API",
+              "GraphQL",
+              "WebRTC",
             ],
           },
           frameworksLibraries: {
@@ -1462,20 +1521,45 @@ export default function Builder() {
             required: true,
             skills: [
               "React.js",
-              "Next.js",
-              "Vue.js",
               "Angular",
+              "Vue.js",
+              "Svelte",
+              "jQuery",
+              "Alpine.js",
+              "Next.js",
+              "Nuxt.js",
+              "Remix",
               "Node.js",
               "Express.js",
-              "NestJS",
-              "jQuery",
-              "Spring Boot (Java)",
               "Django",
-              "Flask (Python)",
+              "Flask",
               "FastAPI",
-              "Laravel",
+              "Spring Boot (Java)",
+              "Ruby on Rails",
+              "Laravel (PHP)",
               "CodeIgniter (PHP)",
-              "Hibernate (Java)",
+              "ASP.NET Core",
+              "Koa.js",
+              "NestJS",
+              "Phoenix (Elixir)",
+              "React Native",
+              "Flutter",
+              "Ionic",
+              "Xamarin",
+              "TensorFlow",
+              "PyTorch",
+              "Keras",
+              "Pandas",
+              "NumPy",
+              "SciPy",
+              "Scikit-learn",
+              "Matplotlib",
+              "Seaborn",
+              "OpenCV",
+              "Unity (C#)",
+              "Unreal Engine (C++)",
+              "Phaser.js",
+              "Godot",
             ],
           },
           databases: {
@@ -1484,20 +1568,24 @@ export default function Builder() {
             skills: [
               "MySQL",
               "PostgreSQL",
-              "MariaDB",
-              "Oracle DB",
               "SQLite",
+              "Microsoft SQL Server",
+              "Oracle Database",
+              "MariaDB",
               "MongoDB",
-              "Firebase Firestore",
-              "CouchDB",
               "Cassandra",
+              "CouchDB",
               "DynamoDB",
+              "Neo4j (Graph DB)",
               "Redis",
-              "Memcached",
+              "Firebase Realtime Database",
+              "Firestore",
+              "Elasticsearch",
+              "Solr",
             ],
           },
           toolsPlatforms: {
-            title: "Tools & Platforms",
+            title: "Tools and Platforms",
             required: false,
             skills: [
               "Git",
@@ -1510,42 +1598,75 @@ export default function Builder() {
               "Travis CI",
               "CircleCI",
               "Postman",
-              "Swagger",
+              "Swagger / OpenAPI",
+              "Figma",
+              "Adobe XD",
               "VS Code",
               "IntelliJ IDEA",
               "Eclipse",
               "PyCharm",
-              "Figma",
-              "Adobe XD",
-              "Jira",
-              "Trello",
+              "Android Studio",
+              "Xcode",
+              "Postgres pgAdmin",
+              "MySQL Workbench",
             ],
           },
           cloudHosting: {
-            title: "Cloud & Hosting",
+            title: "Cloud and Hosting",
             required: false,
             skills: [
-              "AWS (EC2, S3, RDS, Lambda)",
-              "Microsoft Azure",
+              "AWS (EC2, S3, Lambda, RDS, CloudFront)",
               "Google Cloud Platform (GCP)",
+              "Compute Engine",
+              "Firebase",
+              "BigQuery",
+              "Cloud Functions",
+              "Microsoft Azure",
+              "App Service",
+              "Cosmos DB",
+              "Azure Functions",
+              "Blob Storage",
+              "Heroku",
               "Netlify",
               "Vercel",
-              "Heroku",
               "DigitalOcean",
+              "Linode",
               "Render",
+              "Cloudflare",
             ],
           },
           otherTechnical: {
             title: "Other Technical Skills",
             required: false,
             skills: [
-              "Responsive Web Design (RWD)",
-              "API Development (REST, GraphQL)",
-              "Agile & Scrum Methodologies",
+              "APIs (REST, GraphQL, gRPC)",
               "CI/CD Pipelines",
-              "Unit Testing (Jest, Mocha, PyTest)",
-              "Performance Optimization",
-              "SEO Basics",
+              "Microservices Architecture",
+              "Web Security (HTTPS, SSL/TLS, OAuth, JWT, CSRF, CORS)",
+              "Jest",
+              "Mocha",
+              "Chai",
+              "Jasmine",
+              "Selenium",
+              "Cypress",
+              "Puppeteer",
+              "JUnit",
+              "PyTest",
+              "Terraform",
+              "Ansible",
+              "Chef",
+              "Puppet",
+              "Hadoop",
+              "Apache Spark",
+              "Kafka",
+              "Natural Language Processing (NLP)",
+              "Computer Vision",
+              "Reinforcement Learning",
+              "Linux (Ubuntu, Fedora, Debian)",
+              "Windows",
+              "macOS",
+              "VMware",
+              "VirtualBox",
             ],
           },
         };
@@ -1621,43 +1742,50 @@ export default function Builder() {
 
                       {/* Selected Skills Tags */}
                       {skills[categoryKey].length > 0 && (
-                        <div className="flex flex-wrap gap-2 p-3 bg-gray-50 rounded-lg">
-                          {skills[categoryKey].map((skill) => (
+                        <div className="flex flex-wrap gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                          {skills[categoryKey].map((skill, index) => (
                             <motion.span
                               key={skill}
-                              initial={{ opacity: 0, scale: 0.8 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              className="inline-flex items-center gap-1 px-3 py-1 bg-black text-white text-xs rounded-full"
+                              initial={{ opacity: 0, scale: 0.8, x: -20 }}
+                              animate={{ opacity: 1, scale: 1, x: 0 }}
+                              exit={{ opacity: 0, scale: 0.8, x: 20 }}
+                              transition={{ delay: index * 0.05 }}
+                              onClick={() => removeSkill(categoryKey, skill)}
+                              className="inline-flex items-center px-4 py-2 bg-black text-white text-sm font-medium rounded-xl shadow-md hover:bg-gray-800 transition-all duration-200 cursor-pointer"
                             >
                               {skill}
-                              <button
-                                onClick={() =>
-                                  removeSkill(categoryKey, skill)
-                                }
-                                className="ml-1 hover:text-red-300 transition-colors"
-                              >
-                                <X className="w-3 h-3" />
-                              </button>
                             </motion.span>
                           ))}
                         </div>
                       )}
 
                       {/* Skill Checkboxes */}
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-3">
                         {category.skills.map((skill) => {
                           const isSelected =
                             skills[categoryKey].includes(skill);
                           return (
                             <motion.label
                               key={skill}
-                              className={`inline-flex items-center px-3 py-2 rounded-full cursor-pointer transition-all duration-200 text-xs font-medium ${
+                              className={`inline-flex items-center px-4 py-2.5 rounded-xl cursor-pointer transition-all duration-300 text-sm font-medium border-2 ${
                                 isSelected
-                                  ? "bg-black text-white shadow-md"
-                                  : "bg-white border border-gray-200 hover:bg-gray-50 hover:shadow-sm"
+                                  ? "bg-black text-white border-black shadow-lg"
+                                  : "bg-white border-gray-200 text-gray-700 hover:border-gray-400 hover:bg-gray-50 hover:shadow-md"
                               }`}
-                              whileHover={{ backgroundColor: 'rgba(0,0,0,0.05)' }}
-                              whileTap={{ backgroundColor: 'rgba(0,0,0,0.1)' }}
+                              whileHover={{
+                                scale: 1.02,
+                                y: -2
+                              }}
+                              whileTap={{
+                                scale: 0.98,
+                                y: 0
+                              }}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{
+                                duration: 0.2,
+                                delay: Math.random() * 0.1
+                              }}
                             >
                               <input
                                 type="checkbox"
@@ -1677,7 +1805,7 @@ export default function Builder() {
                       <div className="flex gap-2">
                         <Input
                           placeholder="Add custom skill..."
-                          value={customSkillInputs[categoryKey] || ""}
+                          value={customSkillInputs[categoryKey] ?? ""}
                           onChange={(e) =>
                             setCustomSkillInputs((prev) => ({
                               ...prev,
