@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { cva } from "class-variance-authority";
 
@@ -20,13 +21,10 @@ const badgeVariants = cva(
     defaultVariants: {
       variant: "default",
     },
-  },
+  }
 );
 
-export interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-
-function Badge({ className, variant, ...props })) {
+function Badge({ className, variant, ...props }) {
   return (
     <div className={cn(badgeVariants({ variant }), className)} {...props} />
   );

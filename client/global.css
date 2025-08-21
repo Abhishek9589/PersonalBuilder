@@ -1,135 +1,9 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&family=Work+Sans:wght@300;400;500;600;700&family=Mulish:wght@300;400;500;600;700&family=Ubuntu:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&family=Source+Sans+Pro:wght@300;400;600;700&display=swap");
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Force light mode across all browsers and system preferences */
-* {
-  color-scheme: light !important;
-}
-
-html {
-  color-scheme: light !important;
-}
-
-/* Prevent dark mode overrides */
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: light !important;
-  }
-
-  * {
-    color-scheme: light !important;
-  }
-}
-
-/* Cross-browser compatibility */
-*, *::before, *::after {
-  box-sizing: border-box;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Ensure consistent scrollbar appearance across browsers */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
-}
-
-/* Enhanced responsive grid utilities */
-@layer utilities {
-  .responsive-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-    max-width: 100%;
-  }
-
-  .responsive-grid-3 {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    max-width: 100%;
-  }
-
-  @media (min-width: 768px) {
-    .responsive-grid-3 {
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      max-width: 100%;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .responsive-grid-3 {
-      grid-template-columns: repeat(3, 1fr);
-      max-width: 100%;
-    }
-  }
-}
-
-/* Enhanced drag animations */
-.drag-handle {
-  cursor: grab;
-  transition: all 0.2s ease;
-}
-
-.drag-handle:active {
-  cursor: grabbing;
-}
-
-.drag-handle:hover {
-  transform: scale(1.1);
-}
-
-/* Card hover effects */
-.card-hover {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-}
-
-/* Smooth animations for better UX */
-.smooth-transition {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Focus styles for accessibility */
-.focus-ring:focus {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
-}
-
-/* Animation for card grabbing */
-.card-grab {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.card-grab:hover {
-  transform: scale(1.02);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-.card-grab:active {
-  transform: scale(0.98);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
 
 @layer base {
   /**
@@ -138,85 +12,83 @@ html {
    * A different format will require also updating the theme in tailwind.config.ts.
   */
   :root {
-    /* Minimal Black & White Theme */
     --background: 0 0% 100%;
-    --foreground: 0 0% 0%;
+    --foreground: 210 17% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 0%;
+    --card-foreground: 210 17% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 0%;
+    --popover-foreground: 210 17% 15%;
 
-    --primary: 0 0% 0%;
+    --primary: 244 62% 32%;  /* venue-indigo #3C3B6E */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 0%;
+    --secondary: 246 100% 95%;  /* light venue-lavender */
+    --secondary-foreground: 244 62% 32%;
 
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 33%;
+    --muted: 246 100% 95%;
+    --muted-foreground: 210 17% 45%;
 
-    --accent: 0 0% 96%;
-    --accent-foreground: 0 0% 0%;
+    --accent: 246 100% 69%;  /* venue-purple #6C63FF */
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 0% 45%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 0 0% 88%;
-    --input: 0 0% 88%;
-    --ring: 0 0% 0%;
+    --border: 246 100% 90%;
+    --input: 246 100% 90%;
+    --ring: 246 100% 69%;
 
-    --radius: 0.25rem;
+    --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 0 0% 0%;
-    --sidebar-primary: 0 0% 0%;
+    --sidebar-foreground: 210 17% 15%;
+    --sidebar-primary: 244 62% 32%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 96%;
-    --sidebar-accent-foreground: 0 0% 0%;
-    --sidebar-border: 0 0% 88%;
-    --sidebar-ring: 0 0% 0%;
+    --sidebar-accent: 246 100% 95%;
+    --sidebar-accent-foreground: 244 62% 32%;
+    --sidebar-border: 246 100% 90%;
+    --sidebar-ring: 246 100% 69%;
   }
 
   .dark {
-    /* Minimal Dark Mode - Still Black & White */
-    --background: 0 0% 4%;
-    --foreground: 0 0% 98%;
+    --background: 230 21% 11%;  /* venue-dark #1F1F2E */
+    --foreground: 0 0% 100%;
 
-    --card: 0 0% 4%;
-    --card-foreground: 0 0% 98%;
+    --card: 230 21% 15%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 4%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 230 21% 15%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 4%;
+    --primary: 246 100% 69%;  /* venue-purple #6C63FF */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 14%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 230 21% 20%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 14%;
-    --muted-foreground: 0 0% 65%;
+    --muted: 230 21% 20%;
+    --muted-foreground: 230 7% 65%;
 
-    --accent: 0 0% 14%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 244 62% 32%;  /* venue-indigo #3C3B6E */
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 0% 55%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 0 0% 98%;
+    --border: 230 21% 25%;
+    --input: 230 21% 25%;
+    --ring: 246 100% 69%;
 
-    --sidebar-background: 0 0% 4%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 0 0% 98%;
-    --sidebar-primary-foreground: 0 0% 4%;
-    --sidebar-accent: 0 0% 14%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 20%;
-    --sidebar-ring: 0 0% 98%;
+    --sidebar-background: 230 21% 11%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 246 100% 69%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 230 21% 20%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 230 21% 25%;
+    --sidebar-ring: 246 100% 69%;
   }
 }
 
@@ -226,226 +98,6 @@ html {
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-poppins;
   }
-}
-
-/* Slider customization */
-.slider::-webkit-slider-thumb {
-  appearance: none;
-  height: 20px;
-  width: 20px;
-  border-radius: 50%;
-  background: #000000;
-  cursor: pointer;
-  box-shadow: 0 0 2px 0 #555;
-  transition: background .15s ease-in-out;
-}
-
-.slider::-webkit-slider-thumb:hover {
-  background: #333333;
-}
-
-.slider::-moz-range-thumb {
-  height: 20px;
-  width: 20px;
-  border-radius: 50%;
-  background: #000000;
-  cursor: pointer;
-  border: none;
-  box-shadow: 0 0 2px 0 #555;
-  transition: background .15s ease-in-out;
-}
-
-.slider::-moz-range-thumb:hover {
-  background: #333333;
-}
-
-/* Enhanced Notification Styles */
-[data-sonner-toaster] {
-  z-index: 99999 !important;
-  bottom: 20px !important;
-  right: 20px !important;
-}
-
-/* Force all Sonner toasts to have relative positioning */
-[data-sonner-toaster] > * {
-  position: relative !important;
-}
-
-[data-sonner-toast] {
-  animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid #E0E0E0 !important;
-  background: white !important;
-  color: black !important;
-  border-radius: 8px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-  font-family: 'Inter', sans-serif !important;
-  font-size: 14px !important;
-  line-height: 1.5 !important;
-  padding: 12px 42px 12px 16px !important;
-  min-width: 320px !important;
-  max-width: 420px !important;
-  overflow: visible !important;
-  position: relative !important;
-  margin-bottom: 12px !important;
-  margin-top: 0 !important;
-}
-
-[data-sonner-toast]:not(:last-child) {
-  margin-bottom: 16px !important;
-}
-
-[data-sonner-toast][data-type="success"] {
-  border-left: 4px solid #1F2937 !important;
-}
-
-[data-sonner-toast][data-type="error"] {
-  border-left: 4px solid #EF4444 !important;
-}
-
-[data-sonner-toast][data-type="warning"] {
-  border-left: 4px solid #F59E0B !important;
-}
-
-[data-sonner-toast][data-type="info"] {
-  border-left: 4px solid #374151 !important;
-}
-
-[data-sonner-toast][data-type="loading"] {
-  border-left: 4px solid #6B7280 !important;
-}
-
-[data-sonner-toast] [data-title] {
-  font-weight: 600 !important;
-  color: black !important;
-  margin-bottom: 4px !important;
-  font-size: 14px !important;
-}
-
-[data-sonner-toast] [data-description] {
-  color: #555555 !important;
-  font-size: 13px !important;
-  line-height: 1.4 !important;
-  margin-top: 4px !important;
-}
-
-/* Ultra-specific close button targeting for Sonner */
-[data-sonner-toaster] [data-sonner-toast] button,
-[data-sonner-toaster] li button,
-[data-sonner-toast] button,
-li[data-sonner-toast] button,
-[data-close-button],
-button[data-close-button],
-[aria-label="Close toast"],
-button[aria-label="Close toast"] {
-  all: unset !important;
-  position: absolute !important;
-  top: 6px !important;
-  right: 6px !important;
-  width: 30px !important;
-  height: 30px !important;
-  background: rgba(0, 0, 0, 0.1) !important;
-  border: 1px solid rgba(0, 0, 0, 0.2) !important;
-  border-radius: 6px !important;
-  cursor: pointer !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-size: 16px !important;
-  font-weight: bold !important;
-  color: #333 !important;
-  z-index: 1000 !important;
-  transition: all 0.2s ease !important;
-  flex-shrink: 0 !important;
-  box-sizing: border-box !important;
-}
-
-/* Close button hover state */
-[data-sonner-toaster] [data-sonner-toast] button:hover,
-[data-sonner-toaster] li button:hover,
-[data-sonner-toast] button:hover,
-li[data-sonner-toast] button:hover,
-[data-close-button]:hover,
-button[data-close-button]:hover,
-[aria-label="Close toast"]:hover,
-button[aria-label="Close toast"]:hover {
-  background: rgba(0, 0, 0, 0.2) !important;
-  border-color: rgba(0, 0, 0, 0.3) !important;
-  color: #111 !important;
-  transform: scale(1.05) !important;
-}
-
-/* Content area spacing to accommodate close button */
-[data-sonner-toast] [data-content],
-ol[data-sonner-toaster] li[data-sonner-toast] [data-content] {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding-right: 40px !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
-}
-
-/* Success notification icon styling */
-[data-sonner-toast][data-type="success"] [data-icon] {
-  color: #1F2937 !important;
-}
-
-/* Error notification icon styling */
-[data-sonner-toast][data-type="error"] [data-icon] {
-  color: #EF4444 !important;
-}
-
-/* Warning notification icon styling */
-[data-sonner-toast][data-type="warning"] [data-icon] {
-  color: #F59E0B !important;
-}
-
-/* Info notification icon styling */
-[data-sonner-toast][data-type="info"] [data-icon] {
-  color: #374151 !important;
-}
-
-/* Animation for notifications */
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(100%);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-/* Ensure notifications are above all other content */
-.toast-notification {
-  z-index: 99999 !important;
-}
-
-/* Additional targeting for Sonner toaster structure */
-ol[data-sonner-toaster] {
-  z-index: 99999 !important;
-}
-
-ol[data-sonner-toaster] li[data-sonner-toast] {
-  position: relative !important;
-  margin-bottom: 12px !important;
-  overflow: visible !important;
-}
-
-/* Force close button to top-right corner on ALL Sonner toast variants */
-[data-sonner-toaster] [data-sonner-toast] button:last-child,
-ol[data-sonner-toaster] li button:last-child,
-[data-sonner-toast]:has(button) button:last-child {
-  position: absolute !important;
-  top: 8px !important;
-  right: 8px !important;
-  width: 28px !important;
-  height: 28px !important;
-  background: rgba(0, 0, 0, 0.08) !important;
-  border: 1px solid rgba(0, 0, 0, 0.15) !important;
-  border-radius: 6px !important;
-  z-index: 999 !important;
 }
