@@ -1,9 +1,135 @@
-
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&family=Work+Sans:wght@300;400;500;600;700&family=Mulish:wght@300;400;500;600;700&family=Ubuntu:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&family=Source+Sans+Pro:wght@300;400;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Force light mode across all browsers and system preferences */
+* {
+  color-scheme: light !important;
+}
+
+html {
+  color-scheme: light !important;
+}
+
+/* Prevent dark mode overrides */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: light !important;
+  }
+
+  * {
+    color-scheme: light !important;
+  }
+}
+
+/* Cross-browser compatibility */
+*, *::before, *::after {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure consistent scrollbar appearance across browsers */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Enhanced responsive grid utilities */
+@layer utilities {
+  .responsive-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    max-width: 100%;
+  }
+
+  .responsive-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    max-width: 100%;
+  }
+
+  @media (min-width: 768px) {
+    .responsive-grid-3 {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      max-width: 100%;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .responsive-grid-3 {
+      grid-template-columns: repeat(3, 1fr);
+      max-width: 100%;
+    }
+  }
+}
+
+/* Enhanced drag animations */
+.drag-handle {
+  cursor: grab;
+  transition: all 0.2s ease;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.drag-handle:hover {
+  transform: scale(1.1);
+}
+
+/* Card hover effects */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Smooth animations for better UX */
+.smooth-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Focus styles for accessibility */
+.focus-ring:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Animation for card grabbing */
+.card-grab {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-grab:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.card-grab:active {
+  transform: scale(0.98);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
 
 @layer base {
   /**
@@ -12,83 +138,85 @@
    * A different format will require also updating the theme in tailwind.config.ts.
   */
   :root {
+    /* Minimal Black & White Theme */
     --background: 0 0% 100%;
-    --foreground: 210 17% 15%;
+    --foreground: 0 0% 0%;
 
     --card: 0 0% 100%;
-    --card-foreground: 210 17% 15%;
+    --card-foreground: 0 0% 0%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 210 17% 15%;
+    --popover-foreground: 0 0% 0%;
 
-    --primary: 244 62% 32%;  /* venue-indigo #3C3B6E */
+    --primary: 0 0% 0%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 246 100% 95%;  /* light venue-lavender */
-    --secondary-foreground: 244 62% 32%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 0%;
 
-    --muted: 246 100% 95%;
-    --muted-foreground: 210 17% 45%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 33%;
 
-    --accent: 246 100% 69%;  /* venue-purple #6C63FF */
-    --accent-foreground: 0 0% 100%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 0%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 0% 45%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 246 100% 90%;
-    --input: 246 100% 90%;
-    --ring: 246 100% 69%;
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 0 0% 0%;
 
-    --radius: 0.5rem;
+    --radius: 0.25rem;
 
     --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 210 17% 15%;
-    --sidebar-primary: 244 62% 32%;
+    --sidebar-foreground: 0 0% 0%;
+    --sidebar-primary: 0 0% 0%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 246 100% 95%;
-    --sidebar-accent-foreground: 244 62% 32%;
-    --sidebar-border: 246 100% 90%;
-    --sidebar-ring: 246 100% 69%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 0%;
+    --sidebar-border: 0 0% 88%;
+    --sidebar-ring: 0 0% 0%;
   }
 
   .dark {
-    --background: 230 21% 11%;  /* venue-dark #1F1F2E */
-    --foreground: 0 0% 100%;
+    /* Minimal Dark Mode - Still Black & White */
+    --background: 0 0% 4%;
+    --foreground: 0 0% 98%;
 
-    --card: 230 21% 15%;
-    --card-foreground: 0 0% 100%;
+    --card: 0 0% 4%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 230 21% 15%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 0 0% 4%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 246 100% 69%;  /* venue-purple #6C63FF */
-    --primary-foreground: 0 0% 100%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 4%;
 
-    --secondary: 230 21% 20%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 0 0% 14%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 230 21% 20%;
-    --muted-foreground: 230 7% 65%;
+    --muted: 0 0% 14%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 244 62% 32%;  /* venue-indigo #3C3B6E */
-    --accent-foreground: 0 0% 100%;
+    --accent: 0 0% 14%;
+    --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 62.8% 50%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 0% 55%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 230 21% 25%;
-    --input: 230 21% 25%;
-    --ring: 246 100% 69%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 0 0% 98%;
 
-    --sidebar-background: 230 21% 11%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 246 100% 69%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 230 21% 20%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 230 21% 25%;
-    --sidebar-ring: 246 100% 69%;
+    --sidebar-background: 0 0% 4%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 0 0% 98%;
+    --sidebar-primary-foreground: 0 0% 4%;
+    --sidebar-accent: 0 0% 14%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 0 0% 98%;
   }
 }
 
@@ -98,6 +226,37 @@
   }
 
   body {
-    @apply bg-background text-foreground font-poppins;
+    @apply bg-background text-foreground;
   }
+}
+
+/* Slider customization */
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #000000;
+  cursor: pointer;
+  box-shadow: 0 0 2px 0 #555;
+  transition: background .15s ease-in-out;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  background: #333333;
+}
+
+.slider::-moz-range-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #000000;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 0 2px 0 #555;
+  transition: background .15s ease-in-out;
+}
+
+.slider::-moz-range-thumb:hover {
+  background: #333333;
 }

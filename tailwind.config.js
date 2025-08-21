@@ -1,5 +1,3 @@
-
-
 export default {
   darkMode: ["class"],
   content: ["./client/**/*.{js,jsx}"],
@@ -13,13 +11,48 @@ export default {
       },
     },
     extend: {
-      colors: {
-        // VenueKart Brand Colors
-        'venue-indigo': '#3C3B6E',
-        'venue-purple': '#6C63FF',
-        'venue-lavender': '#E6E6FA',
-        'venue-dark': '#1F1F2E',
+      fontFamily: {
+        // Sans-Serif Fonts (Modern & Clean)
+        helvetica: ["Helvetica", "Arial", "sans-serif"],
+        arial: ["Arial", "sans-serif"],
+        calibri: ["Calibri", "Arial", "sans-serif"],
+        opensans: ["Open Sans", "sans-serif"],
+        lato: ["Lato", "sans-serif"],
+        roboto: ["Roboto", "sans-serif"],
+        verdana: ["Verdana", "sans-serif"],
+        sourcesanspro: ["Source Sans Pro", "sans-serif"],
+        tahoma: ["Tahoma", "sans-serif"],
+        trebuchetms: ["Trebuchet MS", "sans-serif"],
 
+        // Serif Fonts (Traditional & Professional)
+        georgia: ["Georgia", "serif"],
+        cambria: ["Cambria", "serif"],
+        timesnewroman: ["Times New Roman", "serif"],
+        garamond: ["Garamond", "serif"],
+        baskerville: ["Baskerville", "serif"],
+        palatinolinotype: ["Palatino Linotype", "serif"],
+
+        // Modern & Minimal Sans-Serif
+        poppins: ["Poppins", "sans-serif"],
+        montserrat: ["Montserrat", "sans-serif"],
+        nunito: ["Nunito", "sans-serif"],
+        worksans: ["Work Sans", "sans-serif"],
+        exo2: ["Exo 2", "sans-serif"],
+        mulish: ["Mulish", "sans-serif"],
+        ubuntu: ["Ubuntu", "sans-serif"],
+        inter: ["Inter", "sans-serif"],
+
+        default: ["Roboto", "sans-serif"],
+      },
+      colors: {
+        // Minimal Black & White Theme
+        black: "#000000",
+        white: "#FFFFFF",
+        "gray-text": "#555555",
+        "gray-light": "#F5F5F5",
+        "gray-border": "#E0E0E0",
+
+        // Keep shadcn colors for compatibility but override with B&W
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -63,10 +96,6 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-      },
-      fontFamily: {
-        'poppins': ['Poppins', 'sans-serif'],
-        'inter': ['Inter', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius)",

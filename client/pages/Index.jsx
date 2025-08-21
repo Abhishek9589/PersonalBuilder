@@ -1,374 +1,454 @@
-
-
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { scrollToTop } from '@/lib/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import {
-  Search,
-  MapPin,
-  Users,
-  Star,
-  Shield,
-  DollarSign,
-  Clock,
-  CheckCircle,
-  ArrowRight,
-  Calendar,
-  Award,
-  Heart,
-  Globe
-} from 'lucide-react';
-
-const popularVenues = [
-  {
-    id: 1,
-    name: "Grand Ballroom Elite",
-    location: "Mumbai, Maharashtra",
-    capacity: "500-800 guests",
-    price: "₹50,000",
-    rating: 4.8,
-    image: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=400&h=300&fit=crop",
-    facilities: ["AC", "Parking", "Catering", "Sound System"]
-  },
-  {
-    id: 2,
-    name: "Royal Garden Resort",
-    location: "Delhi, NCR",
-    capacity: "200-400 guests",
-    price: "₹35,000",
-    rating: 4.6,
-    image: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=400&h=300&fit=crop",
-    facilities: ["Garden", "Pool", "Parking", "Decoration"]
-  },
-  {
-    id: 3,
-    name: "Skyline Conference Hall",
-    location: "Bangalore, Karnataka",
-    capacity: "100-200 guests",
-    price: "₹25,000",
-    rating: 4.7,
-    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=300&fit=crop",
-    facilities: ["Projector", "AC", "Wifi", "Catering"]
-  }
-];
-
-const howItWorks = [
-  {
-    step: 1,
-    title: "Search & Browse",
-    description: "Find venues that match your requirements using our smart filters",
-    icon: Search
-  },
-  {
-    step: 2,
-    title: "Compare & Choose",
-    description: "Compare prices, facilities, and reviews to make the best choice",
-    icon: CheckCircle
-  },
-  {
-    step: 3,
-    title: "Book & Celebrate",
-    description: "Secure your booking and celebrate your special moments worry-free",
-    icon: Calendar
-  }
-];
-
-const features = [
-  {
-    title: "Verified Listings",
-    description: "All venues are thoroughly verified for authenticity and quality",
-    icon: Shield
-  },
-  {
-    title: "Transparent Pricing",
-    description: "No hidden costs. See all charges upfront before booking",
-    icon: DollarSign
-  },
-  {
-    title: "24/7 Support",
-    description: "Round-the-clock customer support for all your queries",
-    icon: Clock
-  },
-  {
-    title: "Quality Assurance",
-    description: "Premium venues curated by our expert team",
-    icon: Award
-  }
-];
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { EnhancedButton } from "@/components/ui/enhanced-button";
+import { Card, CardContent } from "@/components/ui/card";
+import Layout from "@/components/Layout";
 
 export default function Index() {
-  const [searchLocation, setSearchLocation] = useState('');
-  const [searchVenue, setSearchVenue] = useState('');
+  const features = [
+    {
+      title: "ATS-Friendly Format",
+      description:
+        "Optimized for applicant tracking systems used by 99% of companies.",
+      icon: "🎯",
+      color: "from-blue-500 to-cyan-500",
+    },
+    {
+      title: "One-Page Layout",
+      description:
+        "Auto-adjusts font size and spacing to fit everything on one page.",
+      icon: "📄",
+      color: "from-green-500 to-emerald-500",
+    },
+    {
+      title: "PDF Export",
+      description:
+        "Download pixel-perfect PDF resumes ready for job applications.",
+      icon: "⬇️",
+      color: "from-purple-500 to-pink-500",
+    },
+    {
+      title: "Real-time Recommendations",
+      description:
+        "Get ATS score and suggestions to improve your resume while you build.",
+      icon: "⚡",
+      color: "from-yellow-500 to-orange-500",
+    },
+    {
+      title: "No Login Required",
+      description:
+        "Start building immediately without creating accounts or subscriptions.",
+      icon: "🚀",
+      color: "from-indigo-500 to-blue-500",
+    },
+    {
+      title: "Free Forever",
+      description:
+        "Completely free for students and professionals. No hidden costs.",
+      icon: "💎",
+      color: "from-pink-500 to-red-500",
+    },
+  ];
 
-  const handleSearch = () => {
-    // Navigate to venues page with search params
-    const params = new URLSearchParams();
-    if (searchLocation) params.set('location', searchLocation);
-    if (searchVenue) params.set('venue', searchVenue);
-    window.location.href = `/venues?${params.toString()}`;
-  };
+  const sections = [
+    "Header (Name, Contact, Links)",
+    "Professional Summary",
+    "Skills (Categorized)",
+    "Work Experience",
+    "Projects with GitHub Links",
+    "Education",
+    "Certifications",
+    "Achievements",
+    "Interests",
+  ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <Layout>
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-venue-indigo via-pink-500 to-venue-purple py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="text-4xl md:text-6xl font-bold text-white mb-6 font-poppins"
-          >
-            Find Your Perfect
-            <motion.span
+      <section className="relative py-32 lg:py-48 overflow-hidden">
+        {/* Animated background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50"></div>
+        <div className="absolute top-20 left-20 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div className="absolute top-40 right-20 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
+        <div className="absolute bottom-20 left-1/2 w-80 h-80 bg-pink-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
+
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold leading-tight mb-8">
+                <span className="bg-gradient-to-r from-gray-900 via-black to-gray-700 bg-clip-text text-transparent">
+                  ATS-Friendly
+                </span>
+                <br />
+                <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                  Resume Builder
+                </span>
+              </h1>
+
+              <motion.h2
+                className="text-2xl sm:text-3xl text-gray-600 mb-8 leading-relaxed max-w-4xl mx-auto"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.6 }}
+              >
+                Create professional resumes that pass applicant tracking systems
+              </motion.h2>
+
+              <motion.p
+                className="text-xl text-gray-500 mb-12 max-w-3xl mx-auto leading-relaxed"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.6 }}
+              >
+                Simple, minimal, and effective. Build one-page resumes optimized
+                for ATS systems. Free for students and professionals. No login
+                required.
+              </motion.p>
+            </motion.div>
+
+            <motion.div
+              className="flex flex-col sm:flex-row gap-6 justify-center mb-20"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-              className="block text-rose-300"
+              transition={{ delay: 0.7, duration: 0.6 }}
             >
-              Event Venue
-            </motion.span>
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
-            className="text-xl text-white/90 mb-8 max-w-3xl mx-auto"
-          >
-            Discover and book the ideal venue for your special occasions. From intimate gatherings to grand celebrations, find spaces that make memories.
-          </motion.p>
+              <Link to="/builder">
+                <div className="relative group">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-3xl blur-lg opacity-70 group-hover:opacity-100 animate-pulse transition-all duration-500"></div>
+                  <EnhancedButton
+                    size="lg"
+                    variant="premium"
+                    className="relative text-xl px-16 py-6 bg-gradient-to-r from-gray-900 to-black text-white rounded-3xl border border-white/20"
+                  >
+                    Resume Builder ✨
+                  </EnhancedButton>
+                </div>
+              </Link>
+              <Link to="/templates">
+                <EnhancedButton
+                  size="lg"
+                  variant="outline"
+                  className="text-xl px-12 py-6 rounded-3xl border-2 border-gray-300 hover:border-gray-500"
+                >
+                  View Templates
+                </EnhancedButton>
+              </Link>
+            </motion.div>
 
-          {/* Search Bar */}
+            {/* Sample Resume Preview */}
+            <motion.div
+              className="relative max-w-4xl mx-auto"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.9, duration: 0.8 }}
+            >
+              <div className="relative">
+                {/* Glow effect */}
+                <div className="absolute -inset-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 rounded-3xl blur-xl opacity-20"></div>
+
+                {/* Resume preview card */}
+                <div className="relative bg-white/90 backdrop-blur-xl p-10 rounded-3xl shadow-2xl border border-white/20">
+                  <div className="space-y-6 text-left">
+                    <div className="text-center border-b border-gray-200 pb-6">
+                      <h3 className="font-bold text-2xl text-black mb-3">
+                        JOHN DOE
+                      </h3>
+                      <div className="space-y-2 text-gray-600">
+                        <p>john@email.com | (555) 123-4567</p>
+                        <p>LinkedIn: /in/johndoe | New York, NY</p>
+                      </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-8">
+                      <div>
+                        <h4 className="font-bold text-lg text-black mb-3 flex items-center">
+                          <div className="w-3 h-3 bg-blue-500 rounded-full mr-3"></div>
+                          SUMMARY
+                        </h4>
+                        <p className="text-gray-700 leading-relaxed">
+                          Software engineer with 3+ years of experience in
+                          full-stack development...
+                        </p>
+                      </div>
+
+                      <div>
+                        <h4 className="font-bold text-lg text-black mb-3 flex items-center">
+                          <div className="w-3 h-3 bg-purple-500 rounded-full mr-3"></div>
+                          SKILLS
+                        </h4>
+                        <div className="space-y-2 text-gray-700">
+                          <p>
+                            <strong>Languages:</strong> JavaScript, Python, Java
+                          </p>
+                          <p>
+                            <strong>Frameworks:</strong> React, Node.js, Express
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="md:col-span-2">
+                        <h4 className="font-bold text-lg text-black mb-3 flex items-center">
+                          <div className="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
+                          EXPERIENCE
+                        </h4>
+                        <div className="bg-gray-50 rounded-2xl p-6">
+                          <div className="flex justify-between items-start mb-2">
+                            <h5 className="font-semibold text-black">
+                              Software Engineer
+                            </h5>
+                            <span className="text-gray-500 text-sm">
+                              2021 - Present
+                            </span>
+                          </div>
+                          <p className="text-gray-600 mb-3">Tech Company</p>
+                          <ul className="text-gray-700 space-y-1">
+                            <li className="flex items-start">
+                              <div className="w-1 h-1 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                              Built responsive web applications serving 10k+
+                              users
+                            </li>
+                            <li className="flex items-start">
+                              <div className="w-1 h-1 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                              Improved application performance by 40%
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-8 text-center">
+                    <div className="inline-flex items-center gap-3 bg-green-50 px-6 py-3 rounded-2xl">
+                      <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                      <span className="font-semibold text-green-800">
+                        ATS-Optimized Format
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-32 bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 relative overflow-hidden">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            initial={{ opacity: 0, y: 30, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" }}
-            className="max-w-4xl mx-auto bg-white rounded-2xl p-6 shadow-2xl"
+            className="max-w-4xl mx-auto text-center mb-20"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
           >
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="relative">
-                <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <Input
-                  placeholder="Enter location..."
-                  value={searchLocation}
-                  onChange={(e) => setSearchLocation(e.target.value)}
-                  className="pl-10 h-12 border-gray-200 focus:border-venue-indigo"
-                />
-              </div>
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <Input
-                  placeholder="Venue type, name..."
-                  value={searchVenue}
-                  onChange={(e) => setSearchVenue(e.target.value)}
-                  className="pl-10 h-12 border-gray-200 focus:border-venue-indigo"
-                />
-              </div>
-              <Button
-                onClick={handleSearch}
-                className="h-12 bg-venue-indigo hover:bg-venue-purple text-white font-semibold"
+            <h2 className="text-5xl sm:text-6xl font-bold mb-8">
+              <span className="bg-gradient-to-r from-gray-900 to-black bg-clip-text text-transparent">
+                Why Choose Our
+              </span>
+              <br />
+              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Resume Builder?
+              </span>
+            </h2>
+            <p className="text-xl text-gray-600 leading-relaxed">
+              Designed specifically for students and professionals who need
+              ATS-friendly resumes without complicated features.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+            {features.map((feature, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1, duration: 0.6 }}
+                className="group"
               >
-                Search Venues
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
+                <div className="relative h-full">
+                  {/* Background glow */}
+                  <div
+                    className={`absolute -inset-1 bg-gradient-to-r ${feature.color} rounded-3xl blur opacity-0 group-hover:opacity-20 transition-all duration-500`}
+                  ></div>
+
+                  {/* Card */}
+                  <div className="relative bg-white/80 backdrop-blur-xl p-8 rounded-3xl border border-white/50 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 h-full">
+                    <div className="space-y-6">
+                      {/* Icon */}
+                      <div className="relative">
+                        <div
+                          className={`w-16 h-16 bg-gradient-to-r ${feature.color} rounded-2xl flex items-center justify-center text-2xl shadow-lg group-hover:scale-110 transition-transform duration-300`}
+                        >
+                          {feature.icon}
+                        </div>
+                        <div className="absolute inset-0 bg-white rounded-2xl opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                      </div>
+
+                      {/* Content */}
+                      <div>
+                        <h3 className="font-bold text-xl text-black mb-4 group-hover:text-gray-900 transition-colors duration-300">
+                          {feature.title}
+                        </h3>
+                        <p className="text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors duration-300">
+                          {feature.description}
+                        </p>
+                      </div>
+
+                      {/* Hover indicator */}
+                      <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                        <div
+                          className={`w-3 h-3 bg-gradient-to-r ${feature.color} rounded-full animate-pulse`}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Sections Included */}
+      <section className="py-32 bg-gradient-to-br from-gray-50 to-white relative">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            className="max-w-5xl mx-auto"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <div className="text-center mb-20">
+              <h2 className="text-5xl font-bold mb-8">
+                <span className="bg-gradient-to-r from-gray-900 to-black bg-clip-text text-transparent">
+                  Resume Sections
+                </span>
+                <br />
+                <span className="bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+                  Included
+                </span>
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                All essential sections you need for a complete professional
+                resume
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {sections.map((section, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1, duration: 0.5 }}
+                  className="group"
+                >
+                  <div className="relative overflow-hidden">
+                    {/* Background glow */}
+                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl blur opacity-0 group-hover:opacity-20 transition-all duration-500"></div>
+
+                    {/* Card */}
+                    <div className="relative flex items-center space-x-4 p-6 bg-white/80 backdrop-blur-xl rounded-2xl border border-white/50 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
+                      <div className="relative">
+                        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-2xl flex items-center justify-center text-lg font-bold shadow-lg group-hover:scale-110 transition-transform duration-300">
+                          {index + 1}
+                        </div>
+                        <div className="absolute inset-0 bg-white rounded-2xl opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                      </div>
+                      <span className="font-semibold text-black text-lg group-hover:text-gray-900 transition-colors duration-300">
+                        {section}
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* CTA Section */}
+      <section className="py-32 bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50 text-gray-800 relative overflow-hidden border-t border-gray-200">
+        {/* Background effects */}
+        <div
+          className={
+            'absolute inset-0 bg-[url(\'data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%236366f1" fill-opacity="0.05"%3E%3Cpath d="m36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\')] opacity-30'
+          }
+        ></div>
+        <div className="absolute top-20 left-20 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+        <div className="absolute bottom-20 right-20 w-80 h-80 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            viewport={{ once: true, margin: "-100px" }}
-            className="text-center mb-16"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">
-              Why Choose VenueKart?
+            <h2 className="text-5xl sm:text-6xl font-bold mb-8 leading-tight text-gray-800">
+              Ready to Build Your{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600">
+                Dream Resume
+              </span>
+              ?
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              We make venue booking simple, transparent, and reliable with our premium features
+            <p className="text-2xl text-gray-600 mb-12 max-w-4xl mx-auto leading-relaxed">
+              Start building your ATS-friendly resume now. No signup required.
+              Completely free for students and professionals.
             </p>
-          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => {
-              const Icon = feature.icon;
-              return (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.5,
-                    delay: index * 0.1,
-                    ease: "easeOut"
-                  }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  whileHover={{
-                    y: -5,
-                    transition: { duration: 0.2 }
-                  }}
-                >
-                  <Card className="text-center hover:shadow-lg transition-shadow duration-300 h-full">
-                    <CardHeader>
-                      <div className="w-16 h-16 bg-venue-lavender rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Icon className="h-8 w-8 text-venue-indigo" />
-                      </div>
-                      <CardTitle className="text-venue-dark">{feature.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <CardDescription className="text-gray-600">
-                        {feature.description}
-                      </CardDescription>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Popular Venues */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            viewport={{ once: true, margin: "-100px" }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">
-              Popular Venues
-            </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Discover our most loved venues, perfect for any celebration
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {popularVenues.map((venue) => (
-              <Card key={venue.id} className="overflow-hidden hover:shadow-xl transition-shadow duration-300 group">
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={venue.image}
-                    alt={venue.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                  />
-                  <div className="absolute top-4 right-4">
-                    <Badge className="bg-white text-venue-indigo">
-                      <Star className="h-3 w-3 mr-1 fill-current" />
-                      {venue.rating}
-                    </Badge>
-                  </div>
+            <motion.div
+              className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-12"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+            >
+              <Link to="/builder">
+                <div className="relative group">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-3xl blur-lg opacity-70 group-hover:opacity-100 animate-pulse transition-all duration-500"></div>
+                  <EnhancedButton
+                    size="lg"
+                    className="relative bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-xl px-16 py-6 rounded-3xl border border-indigo-200 shadow-2xl"
+                  >
+                    Start Building Resume
+                  </EnhancedButton>
                 </div>
-                <CardContent className="p-6 flex flex-col h-full">
-                  <h3 className="text-xl font-semibold text-venue-dark mb-2">{venue.name}</h3>
-                  <div className="flex items-center text-gray-600 mb-2">
-                    <MapPin className="h-4 w-4 mr-1" />
-                    <span className="text-sm">{venue.location}</span>
-                  </div>
-                  <div className="flex items-center text-gray-600 mb-3">
-                    <Users className="h-4 w-4 mr-1" />
-                    <span className="text-sm">{venue.capacity}</span>
-                  </div>
-                  <div className="flex flex-wrap gap-1 mb-4">
-                    {venue.facilities.map((facility, index) => (
-                      <Badge key={index} variant="secondary" className="text-xs">
-                        {facility}
-                      </Badge>
-                    ))}
-                  </div>
-                  <div className="flex items-center justify-between mt-auto">
-                    <span className="text-2xl font-bold text-venue-indigo">{venue.price}</span>
-                    <Button asChild className="bg-venue-indigo hover:bg-venue-purple" onClick={scrollToTop}>
-                      <Link to={`/venue/${venue.id}`}>View Details</Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          <div className="text-center mt-12">
-            <Button asChild size="lg" className="bg-venue-indigo hover:bg-venue-purple" onClick={scrollToTop}>
-              <Link to="/venues">
-                View All Venues
-                <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
+            </motion.div>
 
-      {/* How It Works */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-venue-dark mb-4">
-              How It Works
-            </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Book your perfect venue in just three simple steps
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {howItWorks.map((step, index) => {
-              const Icon = step.icon;
-              return (
-                <div key={step.step} className="text-center relative">
-                  <div className="relative w-20 h-20 bg-venue-indigo rounded-full flex items-center justify-center mx-auto mb-6">
-                    <Icon className="h-10 w-10 text-white" />
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-venue-purple rounded-full flex items-center justify-center text-white font-bold text-sm border-2 border-white">
-                      {step.step}
-                    </div>
-                  </div>
-                  <h3 className="text-xl font-semibold text-venue-dark mb-3">{step.title}</h3>
-                  <p className="text-gray-600">{step.description}</p>
-                  {index < howItWorks.length - 1 && (
-                    <div className="hidden md:block absolute top-10 left-full w-full">
-                      <ArrowRight className="h-6 w-6 text-venue-purple mx-auto" />
-                    </div>
-                  )}
+            <motion.div
+              className="flex flex-wrap justify-center gap-8 text-gray-400"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.6 }}
+            >
+              {[
+                "No login required",
+                "Free forever",
+                "ATS-optimized",
+                "Privacy focused",
+              ].map((item, index) => (
+                <div
+                  key={index}
+                  className="flex items-center space-x-2 group cursor-pointer"
+                >
+                  <div className="w-2 h-2 bg-green-400 rounded-full group-hover:scale-150 transition-transform duration-300"></div>
+                  <span className="group-hover:text-white transition-colors duration-300">
+                    {item}
+                  </span>
                 </div>
-              );
-            })}
-          </div>
+              ))}
+            </motion.div>
+          </motion.div>
         </div>
       </section>
-
-      {/* Newsletter Section */}
-      <section className="py-20 relative bg-gradient-to-br from-venue-indigo via-pink-500 to-venue-purple overflow-hidden">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Stay Updated with VenueKart
-          </h2>
-          <p className="text-venue-lavender mb-8 text-lg">
-            Get the latest venue listings and exclusive deals delivered to your inbox
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-            <Input
-              placeholder="Enter your email"
-              className="bg-white border-none h-12"
-            />
-            <Button className="bg-venue-purple hover:bg-venue-lavender hover:text-venue-indigo h-12 px-8">
-              Subscribe
-            </Button>
-          </div>
-        </div>
-      </section>
-    </div>
+    </Layout>
   );
 }

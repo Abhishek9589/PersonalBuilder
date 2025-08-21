@@ -1,10 +1,6 @@
-
-
 export const handleDemo = (req, res) => {
-  res.json({
-    message: "Hello from the demo API endpoint!",
-    timestamp: new Date().toISOString(),
-    method: req.method,
-    path: req.path,
-  });
+  const response = {
+    message: "Hello from Express server",
+  };
+  res.status(200).json(response);
 };

@@ -1,8 +1,7 @@
-
-
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import { handleDemo } from "./routes/demo.js";
+import { handleDemo } from "./routes/demo";
 
 export function createServer() {
   const app = express();
@@ -14,7 +13,8 @@ export function createServer() {
 
   // Example API routes
   app.get("/api/ping", (_req, res) => {
-    res.json({ message: "Hello from Express server v2!" });
+    const ping = process.env.PING_MESSAGE ?? "ping";
+    res.json({ message: ping });
   });
 
   app.get("/api/demo", handleDemo);

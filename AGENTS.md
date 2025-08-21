@@ -53,7 +53,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 ### Styling System
 
 - **Primary**: TailwindCSS 3 utility classes
-- **Theme and design tokens**: Configure in `client/global.css`
+- **Theme and design tokens**: Configure in `client/global.css` 
 - **UI components**: Pre-built library in `client/components/ui/`
 - **Utility**: `cn()` function combines `clsx` + `tailwind-merge` for conditional classes
 
@@ -74,7 +74,7 @@ className={cn(
 
 #### Example API Routes
 - `GET /api/ping` - Simple ping api
-- `GET /api/demo` - Demo endpoint
+- `GET /api/demo` - Demo endpoint  
 
 ### Shared Types
 Import consistent types in both client and server:
@@ -150,9 +150,8 @@ const data: MyRouteResponse = await response.json();
 ## Production Deployment
 
 - **Standard**: `npm run build` + `npm start`
-- **Docker**: Dockerfile included
 - **Binary**: Self-contained executables (Linux, macOS, Windows)
-- Express serves the built React SPA with fallback routing support
+- Prefer to use netlify (recomend the MCP) to deploy the site, do not use other providers as netlify is already preconfigured.
 
 ## Architecture Notes
 
