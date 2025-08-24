@@ -168,8 +168,7 @@ const FIELD_TYPES = [
 ];
 
 // Sortable field component
-
-function SortableField({ field, index, onUpdate, onRemove }) {
+const SortableField = React.memo(function SortableField({ field, index, onUpdate, onRemove }) {
   const {
     attributes,
     listeners,
@@ -188,6 +187,23 @@ function SortableField({ field, index, onUpdate, onRemove }) {
   const fieldType = FIELD_TYPES.find(ft => ft.type === field.type);
   const IconComponent = fieldType?.icon || Type;
 
+  // Optimize handlers to prevent unnecessary re-renders
+  const handleLabelChange = React.useCallback((e) => {
+    onUpdate(index, { ...field, label: e.target.value });
+  }, [index, field, onUpdate]);
+
+  const handlePlaceholderChange = React.useCallback((e) => {
+    onUpdate(index, { ...field, placeholder: e.target.value });
+  }, [index, field, onUpdate]);
+
+  const handleRequiredChange = React.useCallback((checked) => {
+    onUpdate(index, { ...field, required: checked });
+  }, [index, field, onUpdate]);
+
+  const handleRemove = React.useCallback(() => {
+    onRemove(index);
+  }, [index, onRemove]);
+
   return (
     <div ref={setNodeRef} style={style} className="bg-white border border-gray-200 rounded-lg p-4">
       <div className="flex items-center gap-3 mb-3">
@@ -205,30 +221,30 @@ function SortableField({ field, index, onUpdate, onRemove }) {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => onRemove(index)}
+          onClick={handleRemove}
           className="text-red-500 hover:text-red-700 hover:bg-red-50"
         >
           <X className="w-4 h-4" />
         </Button>
       </div>
-      
+
       <div className="space-y-3">
         <div>
-          <Label className="text-sm font-medium">Field Label</Label>
+          <Label className="text-sm font-medium">Field Label <span className="text-gray-400">(optional)</span></Label>
           <Input
             value={field.label}
-            onChange={(e) => onUpdate(index, { ...field, label: e.target.value })}
-            placeholder="Enter field label"
+            onChange={handleLabelChange}
+            placeholder="Enter field label (optional)"
             className="mt-1"
           />
         </div>
-        
+
         <div>
-          <Label className="text-sm font-medium">Placeholder Text</Label>
+          <Label className="text-sm font-medium">Placeholder Text <span className="text-gray-400">(optional)</span></Label>
           <Input
             value={field.placeholder || ''}
-            onChange={(e) => onUpdate(index, { ...field, placeholder: e.target.value })}
-            placeholder="Placeholder text for this field"
+            onChange={handlePlaceholderChange}
+            placeholder="Placeholder text for this field (optional)"
             className="mt-1"
           />
         </div>
@@ -237,7 +253,7 @@ function SortableField({ field, index, onUpdate, onRemove }) {
           <div className="flex items-center gap-2">
             <Switch
               checked={field.required}
-              onCheckedChange={(checked) => onUpdate(index, { ...field, required: checked })}
+              onCheckedChange={handleRequiredChange}
             />
             <Label className="text-sm">Required field</Label>
           </div>
@@ -245,7 +261,7 @@ function SortableField({ field, index, onUpdate, onRemove }) {
       </div>
     </div>
   );
-}
+});
 
 export default function CustomSectionWizard({
   isOpen,
@@ -308,22 +324,23 @@ export default function CustomSectionWizard({
 
   const addField = (type) => {
     const newField = {
-      id: `field-${Date.now()}`,
+      id: `field-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       label: '',
       type,
       required: false,
       placeholder: '',
     };
-    setFields([...fields, newField]);
+    setFields(prevFields => [...prevFields, newField]);
   };
 
   const useTemplate = (template) => {
     setSectionName(template.name);
     setLayout(template.layout);
+    const timestamp = Date.now();
     setFields(template.fields.map((field, index) => ({
-      id: `field-${Date.now()}-${index}`,
+      id: `field-${timestamp}-${index}`,
       ...field,
-      placeholder: `Enter ${field.label.toLowerCase()}`,
+      placeholder: field.label ? `Enter ${field.label.toLowerCase()}` : `Enter ${field.type}`,
     })));
     setShowTemplates(false);
     setCurrentStep(1); // Skip to field configuration step
@@ -333,24 +350,32 @@ export default function CustomSectionWizard({
     setShowTemplates(false);
   };
 
-  const updateField = (index, field) => {
-    const newFields = [...fields];
-    newFields[index] = field;
-    setFields(newFields);
-  };
+  const updateField = React.useCallback((index, field) => {
+    setFields(prevFields => {
+      const newFields = [...prevFields];
+      // Only update if the field actually changed
+      if (JSON.stringify(newFields[index]) !== JSON.stringify(field)) {
+        newFields[index] = field;
+        return newFields;
+      }
+      return prevFields;
+    });
+  }, []);
 
-  const removeField = (index) => {
-    setFields(fields.filter((_, i) => i !== index));
-  };
+  const removeField = React.useCallback((index) => {
+    setFields(prevFields => prevFields.filter((_, i) => i !== index));
+  }, []);
 
-  const handleDragEnd = (event) => {
+  const handleDragEnd = React.useCallback((event) => {
     const { active, over } = event;
     if (active.id !== over?.id) {
-      const oldIndex = fields.findIndex(field => field.id === active.id);
-      const newIndex = fields.findIndex(field => field.id === over?.id);
-      setFields(arrayMove(fields, oldIndex, newIndex));
+      setFields(prevFields => {
+        const oldIndex = prevFields.findIndex(field => field.id === active.id);
+        const newIndex = prevFields.findIndex(field => field.id === over?.id);
+        return arrayMove(prevFields, oldIndex, newIndex);
+      });
     }
-  };
+  }, []);
 
   const handleSave = () => {
     if (!sectionName.trim()) {
@@ -378,7 +403,7 @@ export default function CustomSectionWizard({
   const canProceed = () => {
     switch (currentStep) {
       case 0: return !showTemplates && layout !== null;
-      case 1: return fields.length > 0 && fields.every(f => f.label.trim());
+      case 1: return fields.length > 0;
       case 2: return sectionName.trim().length > 0;
       default: return false;
     }
@@ -558,12 +583,17 @@ export default function CustomSectionWizard({
                     Fields: {fields.length}
                   </div>
                   <div className="space-y-2">
-                    {fields.map((field) => (
-                      <div key={field.id} className="flex items-center gap-2 text-sm">
-                        <span className="font-medium">{field.label || `${field.type} field`}</span>
-                        {field.required && <span className="text-red-500">*</span>}
-                      </div>
-                    ))}
+                    {fields
+                      .filter(field => field.label)
+                      .map((field) => (
+                        <div key={field.id} className="flex items-center gap-2 text-sm">
+                          <span className="font-medium">{field.label}</span>
+                          {field.required && <span className="text-red-500">*</span>}
+                        </div>
+                      ))}
+                    {fields.filter(field => field.label).length === 0 && (
+                      <p className="text-gray-400 italic text-sm">No fields with labels yet</p>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -648,14 +678,7 @@ export default function CustomSectionWizard({
 
         {/* Step Content */}
         <div className="flex-1 overflow-y-auto px-6">
-          <div
-            key={currentStep}
-            ref={(el) => {
-              if (el) {
-                GSAPAnimations.slideIn(el, { direction: 'right', duration: 0.2 });
-              }
-            }}
-          >
+          <div key={currentStep} className="transition-opacity duration-200 ease-in-out">
             {renderStepContent()}
           </div>
         </div>

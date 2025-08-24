@@ -202,10 +202,12 @@ function FieldInput({ field, value, onChange }) {
 
   return (
     <div className="space-y-2">
-      <Label className="text-sm font-medium text-gray-900 flex items-center gap-1">
-        {field.label}
-        {field.required && <span className="text-red-500">*</span>}
-      </Label>
+      {field.label && (
+        <Label className="text-sm font-medium text-gray-900 flex items-center gap-1">
+          {field.label}
+          {field.required && <span className="text-red-500">*</span>}
+        </Label>
+      )}
       {renderInput()}
     </div>
   );
@@ -217,6 +219,21 @@ export default function CustomSectionEditor({
   onDeleteSection,
 }) {
   const [editingSection, setEditingSection] = useState(false);
+  const entryRefs = useRef([]);
+
+  // Animate entries when they change and cleanup refs
+  useEffect(() => {
+    // Clean up refs array to match current data length
+    entryRefs.current = entryRefs.current.slice(0, section.data.length);
+
+    // Animate visible entries
+    section.data.forEach((_, entryIndex) => {
+      const entryRef = entryRefs.current[entryIndex];
+      if (entryRef?.current) {
+        GSAPAnimations.fadeIn(entryRef.current, { delay: entryIndex * 0.1 });
+      }
+    });
+  }, [section.data.length]);
 
   const addEntry = () => {
     const newEntry = {};
@@ -308,18 +325,15 @@ export default function CustomSectionEditor({
         <CardContent className="space-y-6">
           <div>
             {section.data.map((entry, entryIndex) => {
-              const entryRef = useRef(null);
-
-              useEffect(() => {
-                if (entryRef.current) {
-                  GSAPAnimations.fadeIn(entryRef.current, { delay: entryIndex * 0.1 });
-                }
-              }, [entryIndex]);
+              // Ensure we have a ref for this entry
+              if (!entryRefs.current[entryIndex]) {
+                entryRefs.current[entryIndex] = React.createRef();
+              }
 
               return (
                 <div
                   key={entryIndex}
-                  ref={entryRef}
+                  ref={entryRefs.current[entryIndex]}
                   className="border border-gray-border rounded-lg p-6 bg-gray-50"
                 >
                 <div className="flex justify-between items-start mb-4">

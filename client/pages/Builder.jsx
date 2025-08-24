@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { isMobileOrTablet } from "@/lib/deviceDetection";
 import { gsap } from "gsap";
 import { GSAPAnimations, useGSAP } from "@/lib/gsapUtils";
 import { initViewportHeight } from "@/lib/viewport";
@@ -82,7 +84,6 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Switch } from "@/components/ui/switch";
-import { toast } from "sonner";
 import { TECHNICAL_SKILLS, getCategoryDisplayNames } from "@/data/skills";
 import ProfileManager from "@/components/ProfileManager";
 import {
@@ -497,6 +498,7 @@ export default function Builder() {
   const [currentStep, setCurrentStep] = useState(0);
   const [showPreview, setShowPreview] = useState(false);
   const [showPDFExport, setShowPDFExport] = useState(false);
+  const [isRedirectingToPDF, setIsRedirectingToPDF] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isMobileNavbarSidebarOpen, setIsMobileNavbarSidebarOpen] = useState(false);
 
@@ -1123,7 +1125,51 @@ export default function Builder() {
       alert("Please fill in your name before downloading.");
       return;
     }
-    setShowPDFExport(true);
+
+    // Check if user is on mobile or tablet
+    const isMobileTablet = isMobileOrTablet({
+      viewportBreakpoint: 1024,
+      useUserAgent: true,
+      useViewport: true,
+      useTouch: false,
+    });
+
+    if (isMobileTablet) {
+      // For mobile/tablet users: redirect to preview page with loading state
+      setIsRedirectingToPDF(true);
+
+      // Show toast notification
+      toast.info('📱 Opening PDF preview for mobile...', {
+        description: 'You\'ll be redirected to a mobile-optimized preview page',
+        duration: 2500,
+      });
+
+      const resumeData = {
+        personalInfo,
+        summary,
+        skills,
+        experiences,
+        projects,
+        education,
+        certifications,
+        achievements,
+        interests,
+        enhancedSteps,
+        customSections,
+        fontFamily,
+        fontSize,
+        marginSize,
+      };
+
+      // Add small delay for better UX and to prevent jarring immediate redirect
+      setTimeout(() => {
+        const dataParam = encodeURIComponent(JSON.stringify(resumeData));
+        navigate(`/pdf-view?data=${dataParam}`);
+      }, 300);
+    } else {
+      // For desktop users: keep existing behavior
+      setShowPDFExport(true);
+    }
   };
 
   const nextStep = () => {
@@ -1307,10 +1353,15 @@ export default function Builder() {
               {/* Download Icon */}
               <button
                 onClick={handleDownload}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                disabled={isRedirectingToPDF}
+                className={`p-2 hover:bg-gray-100 rounded-lg transition-colors ${isRedirectingToPDF ? 'opacity-50 cursor-not-allowed' : ''}`}
                 aria-label="Download resume"
               >
-                <Download className="w-5 h-5 text-gray-700" />
+                {isRedirectingToPDF ? (
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-700"></div>
+                ) : (
+                  <Download className="w-5 h-5 text-gray-700" />
+                )}
               </button>
 
               {/* Delete Icon */}
@@ -3272,9 +3323,24 @@ export default function Builder() {
                 <span className="hidden sm:inline">{showPreview ? "Close Preview" : "Preview"}</span>
               </EnhancedButton>
 
-              <EnhancedButton onClick={handleDownload} variant="premium" size="sm" className="flex items-center gap-1 md:gap-2">
-                <Download className="w-4 h-4" />
-                <span className="hidden sm:inline">Download</span>
+              <EnhancedButton
+                onClick={handleDownload}
+                variant="premium"
+                size="sm"
+                className="flex items-center gap-1 md:gap-2"
+                disabled={isRedirectingToPDF}
+              >
+                {isRedirectingToPDF ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span className="hidden sm:inline">Preparing...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4" />
+                    <span className="hidden sm:inline">Download</span>
+                  </>
+                )}
               </EnhancedButton>
 
               <EnhancedButton
@@ -3577,22 +3643,6 @@ export default function Builder() {
 
       {/* Dialogs - PDFExportDialog moved above to include all props */}
 
-      <CustomSectionWizard
-        isOpen={showCustomSectionWizard}
-        onClose={() => setShowCustomSectionWizard(false)}
-        onAddSection={addCustomSection}
-      />
-
-      <ConfirmationDialog
-        isOpen={confirmationDialog.isOpen}
-        title={confirmationDialog.title}
-        message={confirmationDialog.message}
-        onConfirm={() => {
-          confirmationDialog.onConfirm();
-          setConfirmationDialog({ isOpen: false, title: '', message: '', onConfirm: () => {} });
-        }}
-        onCancel={() => setConfirmationDialog({ isOpen: false, title: '', message: '', onConfirm: () => {} })}
-      />
     </div>
   );
 }

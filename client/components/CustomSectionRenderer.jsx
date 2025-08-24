@@ -111,7 +111,7 @@ function FieldRenderer({ field, value, fontSize = 12 }) {
   return (
     <div className="space-y-1">
       <div className="text-black font-medium" style={{ fontSize: `${fontSize * 0.9}px` }}>
-        {field.label}:
+        {field.label}
       </div>
       <div>{renderValue()}</div>
     </div>
