@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -65,11 +64,7 @@ export default function SignUp() {
         </div>
 
         {/* Main Form Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-        >
+        <div>
           <Card className="shadow-lg border-0">
           <CardContent className="p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -293,7 +288,7 @@ export default function SignUp() {
             </div>
           </CardContent>
           </Card>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

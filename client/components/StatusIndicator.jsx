@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Clock, Save, AlertCircle } from 'lucide-react';
 
 
@@ -7,12 +6,12 @@ export default function StatusIndicator({
   completionStatus,
   totalSections,
   lastSaved,
-})) {
+}) {
   const [showSaved, setShowSaved] = useState(false);
-  
+
   const completedSections = Object.values(completionStatus).filter(Boolean).length;
   const completionPercentage = Math.round((completedSections / totalSections) * 100);
-  
+
   // Show "saved" indicator briefly when lastSaved changes
   useEffect(() => {
     if (lastSaved) {
@@ -38,12 +37,7 @@ export default function StatusIndicator({
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
-      <motion.div
-        className="bg-white border border-gray-200 rounded-lg shadow-lg p-3 min-w-[200px]"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
+      <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3 min-w-[200px]">
         {/* Completion Status */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
@@ -59,56 +53,36 @@ export default function StatusIndicator({
 
         {/* Progress Bar */}
         <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-          <motion.div
-            className="bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full"
-            initial={{ width: 0 }}
-            animate={{ width: `${completionPercentage}%` }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+          <div
+            className="bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full transition-all duration-500"
+            style={{ width: `${completionPercentage}%` }}
           />
         </div>
 
         {/* Auto-save Status */}
-        <AnimatePresence>
-          {showSaved ? (
-            <motion.div
-              className="flex items-center gap-2 text-green-600"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Check className="w-3 h-3" />
-              <span className="text-xs">Auto-saved</span>
-            </motion.div>
-          ) : (
-            <motion.div
-              className="flex items-center gap-2 text-gray-500"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Save className="w-3 h-3" />
-              <span className="text-xs">
-                {lastSaved ? `Saved ${new Date(lastSaved).toLocaleTimeString()}` : 'Auto-saving...'}
-              </span>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {showSaved ? (
+          <div className="flex items-center gap-2 text-green-600">
+            <Check className="w-3 h-3" />
+            <span className="text-xs">Auto-saved</span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 text-gray-500">
+            <Save className="w-3 h-3" />
+            <span className="text-xs">
+              {lastSaved ? `Saved ${new Date(lastSaved).toLocaleTimeString()}` : 'Auto-saving...'}
+            </span>
+          </div>
+        )}
 
         {/* Completion Message */}
         {completionPercentage === 100 && (
-          <motion.div
-            className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-center"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            transition={{ duration: 0.3 }}
-          >
+          <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-center">
             <span className="text-xs text-green-800 font-medium">
               🎉 Resume ready for export!
             </span>
-          </motion.div>
+          </div>
         )}
-      </motion.div>
+      </div>
     </div>
   );
 }

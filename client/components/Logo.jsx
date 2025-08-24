@@ -1,28 +1,18 @@
-import { motion } from "framer-motion";
-
-
 export default function Logo({
   size = "md",
   showText = true,
   className = "",
 }) {
   const sizes = {
-    sm: { icon: "w-6 h-6", text: "text-lg" },
-    md: { icon: "w-8 h-8", text: "text-xl" },
-    lg: { icon: "w-12 h-12", text: "text-3xl" },
+    sm: { icon: "w-5 h-5 md:w-6 md:h-6", text: "text-sm md:text-lg" },
+    md: { icon: "w-6 h-6 md:w-8 md:h-8", text: "text-base md:text-xl" },
+    lg: { icon: "w-8 h-8 md:w-12 md:h-12", text: "text-xl md:text-3xl" },
   };
 
   return (
-    <motion.div
-      className={`flex items-center gap-2 ${className}`}
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <motion.div
-        className={`${sizes[size].icon} bg-black rounded-lg flex items-center justify-center`}
-        whileHover={{ scale: 1.05 }}
-        transition={{ type: "spring", stiffness: 400, damping: 10 }}
+    <div className={`flex items-center gap-1 md:gap-2 ${className}`}>
+      <div
+        className={`${sizes[size].icon} bg-black rounded-md md:rounded-lg flex items-center justify-center transition-transform hover:scale-105 flex-shrink-0`}
       >
         <svg
           viewBox="0 0 24 24"
@@ -37,17 +27,12 @@ export default function Logo({
           <line x1="16" y1="17" x2="8" y2="17" />
           <polyline points="10,9 9,9 8,9" />
         </svg>
-      </motion.div>
+      </div>
       {showText && (
-        <motion.span
-          className={`font-roboto font-bold text-black ${sizes[size].text}`}
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          ATS Resume Builder
-        </motion.span>
+        <span className={`font-roboto font-bold text-black ${sizes[size].text} leading-tight`}>
+          PersonalBuilder
+        </span>
       )}
-    </motion.div>
+    </div>
   );
 }

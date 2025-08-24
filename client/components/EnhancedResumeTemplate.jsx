@@ -2,27 +2,28 @@ import React from "react";
 import CustomSectionRenderer from "@/components/CustomSectionRenderer";
 
 const EnhancedResumeTemplate = React.forwardRef((props, ref) => {
+  try {
     const {
-      personalInfo,
-      summary,
-      skills,
-      experiences,
-      projects,
-      education,
-      certifications,
-      achievements,
-      interests,
-      fontFamily,
-      fontSize,
-      marginSize,
-      enhancedSteps,
-      customSections,
+      personalInfo = {},
+      summary = "",
+      skills = {},
+      experiences = [],
+      projects = [],
+      education = [],
+      certifications = [],
+      achievements = [],
+      interests = "",
+      fontFamily = "Roboto",
+      fontSize = 12,
+      marginSize = 24,
+      enhancedSteps = [],
+      customSections = [],
     } = props;
 
-    // Get enabled sections in order
-    const enabledSections = enhancedSteps
-      .filter(step => step.enabled)
-      .sort((a, b) => a.order - b.order)
+    // Get enabled sections in order with safety checks
+    const enabledSections = (enhancedSteps || [])
+      .filter(step => step && step.enabled)
+      .sort((a, b) => (a.order || 0) - (b.order || 0))
       .filter(step => step.id !== 'customization'); // Exclude customization from resume
 
     const renderCustomSection = (customSection) => {
@@ -39,7 +40,7 @@ const EnhancedResumeTemplate = React.forwardRef((props, ref) => {
       // Handle custom sections
       if (step.isCustom) {
         // Use the latest data from customSections array instead of step.customSection
-        const latestCustomSection = customSections.find(cs => cs.id === step.id);
+        const latestCustomSection = (customSections || []).find(cs => cs && cs.id === step.id);
         if (latestCustomSection) {
           return renderCustomSection(latestCustomSection);
         }
@@ -51,22 +52,23 @@ const EnhancedResumeTemplate = React.forwardRef((props, ref) => {
           return (
             <div className="text-center mb-3">
               <h1 className="font-bold text-black mb-2 tracking-wide uppercase" style={{ fontSize: '2em' }}>
-                {personalInfo.name}
+                {personalInfo?.name || ''}
               </h1>
               <div className="text-black space-y-1" style={{ fontSize: '0.75em' }}>
                 <p>
-                  {personalInfo.phone} |{" "}
+                  {personalInfo?.phone || ''} |{" "}
                   <a
-                    href={`mailto:${personalInfo.email}`}
+                    href={`mailto:${personalInfo?.email || ''}`}
                     className="text-black hover:underline cursor-pointer"
                   >
-                    {personalInfo.email}
+                    {personalInfo?.email || ''}
                   </a>
                 </p>
-                {(personalInfo.linkedin ||
-                  personalInfo.github ||
-                  personalInfo.portfolio ||
-                  personalInfo.address) && (
+                {(personalInfo?.linkedin ||
+                  personalInfo?.github ||
+                  personalInfo?.portfolio ||
+                  (personalInfo?.customLinks && personalInfo.customLinks.length > 0) ||
+                  personalInfo?.address) && (
                   <p className="flex justify-center gap-2 flex-wrap">
                     {personalInfo.linkedin && (
                       <a
@@ -116,9 +118,29 @@ const EnhancedResumeTemplate = React.forwardRef((props, ref) => {
                         </a>
                       </>
                     )}
+                    {personalInfo.customLinks && (personalInfo.customLinks || []).map((link, index) => (
+                      link.name && link.url && (
+                        <span key={link.id}>
+                          {(personalInfo.linkedin || personalInfo.github || personalInfo.portfolio || index > 0) && " | "}
+                          <a
+                            href={
+                              link.url.startsWith("http")
+                                ? link.url
+                                : `https://${link.url}`
+                            }
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-black hover:underline cursor-pointer"
+                          >
+                            {link.name}
+                          </a>
+                        </span>
+                      )
+                    ))}
                     {personalInfo.address && (
                       <>
-                        {(personalInfo.linkedin || personalInfo.github || personalInfo.portfolio) && " | "}
+                        {(personalInfo.linkedin || personalInfo.github || personalInfo.portfolio ||
+                          (personalInfo.customLinks && personalInfo.customLinks.length > 0)) && " | "}
                         <span>{personalInfo.address}</span>
                       </>
                     )}
@@ -147,45 +169,45 @@ const EnhancedResumeTemplate = React.forwardRef((props, ref) => {
               </h2>
               <hr className="border-black mb-1" />
               <div className="text-black space-y-0.5" style={{ fontSize: '0.9em' }}>
-                {skills.programmingLanguages.length > 0 && (
+                {(skills?.programmingLanguages || []).length > 0 && (
                   <p>
                     <strong>Programming Languages:</strong>{" "}
-                    {skills.programmingLanguages.join(", ")}
+                    {(skills?.programmingLanguages || []).join(", ")}
                   </p>
                 )}
-                {skills.webTechnologies.length > 0 && (
+                {(skills?.webTechnologies || []).length > 0 && (
                   <p>
                     <strong>Web Technologies:</strong>{" "}
-                    {skills.webTechnologies.join(", ")}
+                    {(skills?.webTechnologies || []).join(", ")}
                   </p>
                 )}
-                {skills.frameworksLibraries.length > 0 && (
+                {(skills?.frameworksLibraries || []).length > 0 && (
                   <p>
                     <strong>Frameworks & Libraries:</strong>{" "}
-                    {skills.frameworksLibraries.join(", ")}
+                    {(skills?.frameworksLibraries || []).join(", ")}
                   </p>
                 )}
-                {skills.databases.length > 0 && (
+                {(skills?.databases || []).length > 0 && (
                   <p>
-                    <strong>Databases:</strong> {skills.databases.join(", ")}
+                    <strong>Databases:</strong> {(skills?.databases || []).join(", ")}
                   </p>
                 )}
-                {skills.toolsPlatforms.length > 0 && (
+                {(skills?.toolsPlatforms || []).length > 0 && (
                   <p>
                     <strong>Tools & Platforms:</strong>{" "}
-                    {skills.toolsPlatforms.join(", ")}
+                    {(skills?.toolsPlatforms || []).join(", ")}
                   </p>
                 )}
-                {skills.cloudHosting.length > 0 && (
+                {(skills?.cloudHosting || []).length > 0 && (
                   <p>
                     <strong>Cloud & Hosting:</strong>{" "}
-                    {skills.cloudHosting.join(", ")}
+                    {(skills?.cloudHosting || []).join(", ")}
                   </p>
                 )}
-                {skills.otherTechnical.length > 0 && (
+                {(skills?.otherTechnical || []).length > 0 && (
                   <p>
                     <strong>Other Technical Skills:</strong>{" "}
-                    {skills.otherTechnical.join(", ")}
+                    {(skills?.otherTechnical || []).join(", ")}
                   </p>
                 )}
               </div>
@@ -199,7 +221,7 @@ const EnhancedResumeTemplate = React.forwardRef((props, ref) => {
                 EXPERIENCE
               </h2>
               <hr className="border-black mb-1" />
-              {experiences.map((exp) => (
+              {(experiences || []).map((exp) => (
                 <div key={exp.id} className="mb-2">
                   <div className="flex justify-between items-start mb-0.5">
                     <h3 className="font-bold text-black" style={{ fontSize: '0.9em' }}>{exp.position}</h3>
@@ -209,8 +231,8 @@ const EnhancedResumeTemplate = React.forwardRef((props, ref) => {
                   </div>
                   <p className="text-black mb-0.5" style={{ fontSize: '0.9em' }}>{exp.company}</p>
                   <ul className="text-black list-disc list-inside space-y-0" style={{ fontSize: '0.9em' }}>
-                    {exp.responsibilities
-                      .filter((r) => r.trim())
+                    {(exp.responsibilities || [])
+                      .filter((r) => r && r.trim())
                       .map((resp, index) => (
                         <li key={index}>{resp}</li>
                       ))}
@@ -227,7 +249,7 @@ const EnhancedResumeTemplate = React.forwardRef((props, ref) => {
                 PROJECTS
               </h2>
               <hr className="border-black mb-1" />
-              {projects.map((project) => (
+              {(projects || []).map((project) => (
                 <div key={project.id} className="mb-2">
                   <div className="flex items-baseline justify-between">
                     <h3 className="font-bold text-black" style={{ fontSize: '0.9em' }}>{project.name}</h3>
@@ -271,8 +293,8 @@ const EnhancedResumeTemplate = React.forwardRef((props, ref) => {
                     <strong>Tech Stack:</strong> {project.techStack}
                   </p>
                   <ul className="text-black list-disc list-inside space-y-0" style={{ fontSize: '0.9em' }}>
-                    {project.description
-                      .filter((d) => d.trim())
+                    {(project.description || [])
+                      .filter((d) => d && d.trim())
                       .map((desc, index) => (
                         <li key={index}>{desc}</li>
                       ))}
@@ -290,7 +312,7 @@ const EnhancedResumeTemplate = React.forwardRef((props, ref) => {
               </h2>
               <hr className="border-black mb-1" />
               <div className="text-black space-y-1" style={{ fontSize: '0.9em' }}>
-                {education.map((edu) => (
+                {(education || []).map((edu) => (
                   <div key={edu.id} className="ml-3">
                     <div className="flex justify-between items-start">
                       <span className="relative">
@@ -319,7 +341,7 @@ const EnhancedResumeTemplate = React.forwardRef((props, ref) => {
               </h2>
               <hr className="border-black mb-1" />
               <div className="text-black space-y-1" style={{ fontSize: '0.9em' }}>
-                {certifications.map((cert) => (
+                {(certifications || []).map((cert) => (
                   <div key={cert.id} className="ml-3">
                     <div className="flex justify-between items-start">
                       <span className="relative">
@@ -342,7 +364,7 @@ const EnhancedResumeTemplate = React.forwardRef((props, ref) => {
               </h2>
               <hr className="border-black mb-1" />
               <ul className="text-black list-disc list-inside space-y-0.5" style={{ fontSize: '0.9em' }}>
-                {achievements.map((achievement) => (
+                {(achievements || []).map((achievement) => (
                   <li key={achievement.id}>{achievement.description}</li>
                 ))}
               </ul>
@@ -384,8 +406,31 @@ const EnhancedResumeTemplate = React.forwardRef((props, ref) => {
         ))}
       </div>
     );
+  } catch (error) {
+    console.error('Error rendering EnhancedResumeTemplate:', error);
+    return (
+      <div
+        ref={ref}
+        style={{
+          fontFamily: fontFamily || 'Roboto',
+          fontSize: `${fontSize || 12}px`,
+          lineHeight: '1.4',
+          color: '#000',
+          backgroundColor: '#fff',
+          padding: `${marginSize || 24}px`,
+          margin: '0 auto',
+          minHeight: '11in',
+          width: '8.5in',
+        }}
+      >
+        <div className="text-center p-8">
+          <h2 className="text-xl font-bold text-red-600 mb-4">Resume Template Error</h2>
+          <p className="text-gray-600">There was an error rendering your resume. Please try refreshing the page.</p>
+        </div>
+      </div>
+    );
   }
-);
+});
 
 EnhancedResumeTemplate.displayName = "EnhancedResumeTemplate";
 

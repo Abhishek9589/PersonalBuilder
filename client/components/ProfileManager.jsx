@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -50,7 +50,189 @@ import {
   generateProfileId
 } from "@/lib/profileStorage";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
+import { gsap } from "gsap";
+import { GSAPAnimations, useGSAP } from "@/lib/gsapUtils";
+
+// Extract ProfileCard as a separate component to avoid hooks violations
+const ProfileCard = ({ profile, index, currentProfileId, onProfileSelect, onEditProfile, onCloneProfile, onDeleteProfile, profilesLength }) => {
+  const profileCardRef = useRef(null);
+
+  useEffect(() => {
+    if (profileCardRef.current) {
+      GSAPAnimations.listItemEnter(profileCardRef.current, index);
+
+      // Add hover animation
+      const element = profileCardRef.current;
+      const handleMouseEnter = () => {
+        gsap.to(element, { y: -2, duration: 0.2, ease: "power2.out" });
+      };
+      const handleMouseLeave = () => {
+        gsap.to(element, { y: 0, duration: 0.2, ease: "power2.out" });
+      };
+
+      element.addEventListener('mouseenter', handleMouseEnter);
+      element.addEventListener('mouseleave', handleMouseLeave);
+
+      return () => {
+        element.removeEventListener('mouseenter', handleMouseEnter);
+        element.removeEventListener('mouseleave', handleMouseLeave);
+      };
+    }
+  }, [index]);
+
+  const hasResumeData = (profile) => {
+    if (!profile?.data) return false;
+
+    try {
+      const { personalInfo, skills, experiences, projects, education } = profile.data;
+
+      // Check personal info
+      const hasPersonalInfo = personalInfo?.firstName || personalInfo?.lastName || personalInfo?.name;
+
+      // Check skills safely
+      let hasSkills = false;
+      if (skills && typeof skills === 'object' && skills !== null) {
+        try {
+          const skillValues = Object.values(skills);
+          hasSkills = skillValues.some(arr => Array.isArray(arr) && arr && arr.length > 0);
+        } catch (e) {
+          console.warn('Error checking skills:', e);
+          hasSkills = false;
+        }
+      }
+
+      // Check arrays safely
+      const hasExperiences = Array.isArray(experiences) && experiences.length > 0;
+      const hasProjects = Array.isArray(projects) && projects.length > 0;
+      const hasEducation = Array.isArray(education) && education.length > 0;
+
+      return hasPersonalInfo || hasSkills || hasExperiences || hasProjects || hasEducation;
+    } catch (error) {
+      console.warn('Error in hasResumeData:', error);
+      return false;
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    try {
+      return new Date(dateString).toLocaleDateString();
+    } catch {
+      return '';
+    }
+  };
+
+  return (
+    <div
+      ref={profileCardRef}
+      className={`group relative border rounded-lg p-4 cursor-pointer transition-all duration-200 ${
+        currentProfileId === profile.id
+          ? 'border-primary bg-primary/5 shadow-md ring-1 ring-primary/20'
+          : 'border-border hover:border-primary/50 hover:shadow-md hover:bg-muted/30'
+      }`}
+      onClick={() => onProfileSelect(profile.id)}
+    >
+      {/* Profile Card Content */}
+      <div className="space-y-3">
+        {/* Profile Header */}
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <div className={`p-2 rounded-full ${
+              currentProfileId === profile.id
+                ? 'bg-primary text-white'
+                : 'bg-muted text-muted-foreground'
+            }`}>
+              <User className="h-4 w-4" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className={`font-medium text-sm truncate ${
+                currentProfileId === profile.id ? 'text-primary' : 'text-foreground'
+              }`}>
+                {profile.name}
+              </h3>
+              {hasResumeData(profile) && (
+                <div className="flex items-center gap-1 mt-1">
+                  <CheckCircle className="h-3 w-3 text-green-600" />
+                  <span className="text-xs text-green-600">Has data</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Profile Actions */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 opacity-60 hover:opacity-100 group-hover:opacity-100 transition-opacity hover:bg-muted"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEditProfile(profile);
+                }}
+                className="flex items-center gap-2"
+              >
+                <Edit3 className="h-4 w-4" />
+                Edit Name
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCloneProfile(profile);
+                }}
+                className="flex items-center gap-2"
+              >
+                <Copy className="h-4 w-4" />
+                Clone Profile
+              </DropdownMenuItem>
+              {profilesLength > 1 && (
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteProfile(profile.id, profile.name);
+                  }}
+                  className="flex items-center gap-2 text-destructive focus:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete Profile
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        {/* Profile Metadata */}
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Calendar className="h-3 w-3" />
+            <span>Created: {formatDate(profile.createdAt)}</span>
+          </div>
+          {profile.updatedAt && profile.updatedAt !== profile.createdAt && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Settings className="h-3 w-3" />
+              <span>Updated: {formatDate(profile.updatedAt)}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Active Indicator */}
+        {currentProfileId === profile.id && (
+          <div className="flex items-center gap-2 text-xs text-primary font-medium">
+            <CheckCircle className="h-3 w-3" />
+            <span>Active Profile</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const ProfileManager = ({ onProfileSelected, currentProfileData }) => {
   const [profiles, setProfiles] = useState([]);
@@ -63,9 +245,19 @@ const ProfileManager = ({ onProfileSelected, currentProfileData }) => {
   const [editName, setEditName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Move emptyStateRef to top level to avoid conditional hooks
+  const emptyStateRef = useRef(null);
+
   useEffect(() => {
     loadProfiles();
   }, []);
+
+  // Add effect for empty state animation - this will run but only animate if element exists
+  useEffect(() => {
+    if (emptyStateRef.current) {
+      GSAPAnimations.fadeIn(emptyStateRef.current);
+    }
+  }, [profiles]); // Re-run when profiles change
 
   const loadProfiles = () => {
     try {
@@ -198,61 +390,19 @@ const ProfileManager = ({ onProfileSelected, currentProfileData }) => {
     setEditName('');
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return '';
-    try {
-      return new Date(dateString).toLocaleDateString();
-    } catch {
-      return '';
-    }
-  };
-
-  const hasResumeData = (profile) => {
-    if (!profile?.data) return false;
-
-    try {
-      const { personalInfo, skills, experiences, projects, education } = profile.data;
-
-      // Check personal info
-      const hasPersonalInfo = personalInfo?.firstName || personalInfo?.lastName || personalInfo?.name;
-
-      // Check skills safely
-      let hasSkills = false;
-      if (skills && typeof skills === 'object' && skills !== null) {
-        try {
-          const skillValues = Object.values(skills);
-          hasSkills = skillValues.some(arr => Array.isArray(arr) && arr && arr.length > 0);
-        } catch (e) {
-          console.warn('Error checking skills:', e);
-          hasSkills = false;
-        }
-      }
-
-      // Check arrays safely
-      const hasExperiences = Array.isArray(experiences) && experiences.length > 0;
-      const hasProjects = Array.isArray(projects) && projects.length > 0;
-      const hasEducation = Array.isArray(education) && education.length > 0;
-
-      return hasPersonalInfo || hasSkills || hasExperiences || hasProjects || hasEducation;
-    } catch (error) {
-      console.warn('Error in hasResumeData:', error);
-      return false;
-    }
-  };
-
   // Calculate responsive grid classes based on profile count
   const getGridClasses = () => {
     const count = (profiles || []).length;
     if (count === 1) return 'flex justify-center';
-    if (count === 2) return 'grid grid-cols-2 gap-4';
+    if (count === 2) return 'grid grid-cols-1 sm:grid-cols-2 gap-4';
     return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4';
   };
 
+  // Show empty state when no profiles exist
   if ((!profiles || profiles.length === 0) && !showCreateModal) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+      <div
+        ref={emptyStateRef}
         className="max-w-md mx-auto text-center py-8"
       >
         <Card>
@@ -260,7 +410,7 @@ const ProfileManager = ({ onProfileSelected, currentProfileData }) => {
             <div className="mx-auto h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
               <User className="h-6 w-6 text-primary" />
             </div>
-            <CardTitle>Welcome to Resume Builder</CardTitle>
+            <CardTitle>Welcome to PersonalBuilder</CardTitle>
             <CardContent className="pt-6">
               <p className="text-muted-foreground mb-6">
                 Create your first profile to start building your resume. You can create multiple profiles for different career paths.
@@ -278,7 +428,7 @@ const ProfileManager = ({ onProfileSelected, currentProfileData }) => {
           onClose={() => setShowCreateModal(false)}
           onProfileCreated={handleProfileCreated}
         />
-      </motion.div>
+      </div>
     );
   }
 
@@ -305,124 +455,19 @@ const ProfileManager = ({ onProfileSelected, currentProfileData }) => {
         </CardHeader>
         <CardContent>
           <div className={getGridClasses()}>
-            <AnimatePresence>
-              {(profiles || []).map((profile) => (
-                <motion.div
-                  key={profile.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  whileHover={{ y: -2 }}
-                  transition={{ duration: 0.2 }}
-                  className={`group relative border rounded-lg p-4 cursor-pointer transition-all duration-200 ${
-                    currentProfileId === profile.id
-                      ? 'border-primary bg-primary/5 shadow-md ring-1 ring-primary/20'
-                      : 'border-border hover:border-primary/50 hover:shadow-md hover:bg-muted/30'
-                  }`}
-                  onClick={() => handleProfileSelect(profile.id)}
-                >
-                  {/* Profile Card Content */}
-                  <div className="space-y-3">
-                    {/* Profile Header */}
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <div className={`p-2 rounded-full ${
-                          currentProfileId === profile.id 
-                            ? 'bg-primary text-white' 
-                            : 'bg-muted text-muted-foreground'
-                        }`}>
-                          <User className="h-4 w-4" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className={`font-medium text-sm truncate ${
-                            currentProfileId === profile.id ? 'text-primary' : 'text-foreground'
-                          }`}>
-                            {profile.name}
-                          </h3>
-                          {hasResumeData(profile) && (
-                            <div className="flex items-center gap-1 mt-1">
-                              <CheckCircle className="h-3 w-3 text-green-600" />
-                              <span className="text-xs text-green-600">Has data</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Profile Actions */}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0 opacity-60 hover:opacity-100 group-hover:opacity-100 transition-opacity hover:bg-muted"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                          <DropdownMenuItem 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleEditProfile(profile);
-                            }}
-                            className="flex items-center gap-2"
-                          >
-                            <Edit3 className="h-4 w-4" />
-                            Edit Name
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleCloneProfile(profile);
-                            }}
-                            className="flex items-center gap-2"
-                          >
-                            <Copy className="h-4 w-4" />
-                            Clone Profile
-                          </DropdownMenuItem>
-                          {(profiles || []).length > 1 && (
-                            <DropdownMenuItem 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteProfile(profile.id, profile.name);
-                              }}
-                              className="flex items-center gap-2 text-destructive focus:text-destructive"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                              Delete Profile
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-
-                    {/* Profile Metadata */}
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Calendar className="h-3 w-3" />
-                        <span>Created: {formatDate(profile.createdAt)}</span>
-                      </div>
-                      {profile.updatedAt && profile.updatedAt !== profile.createdAt && (
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Settings className="h-3 w-3" />
-                          <span>Updated: {formatDate(profile.updatedAt)}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Active Indicator */}
-                    {currentProfileId === profile.id && (
-                      <div className="flex items-center gap-2 text-xs text-primary font-medium">
-                        <CheckCircle className="h-3 w-3" />
-                        <span>Active Profile</span>
-                      </div>
-                    )}
-                  </div>
-
-                </motion.div>
-              ))}
-            </AnimatePresence>
+            {(profiles || []).map((profile, index) => (
+              <ProfileCard
+                key={profile.id}
+                profile={profile}
+                index={index}
+                currentProfileId={currentProfileId}
+                onProfileSelect={handleProfileSelect}
+                onEditProfile={handleEditProfile}
+                onCloneProfile={handleCloneProfile}
+                onDeleteProfile={handleDeleteProfile}
+                profilesLength={profiles.length}
+              />
+            ))}
           </div>
         </CardContent>
       </Card>

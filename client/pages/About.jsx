@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import Layout from "@/components/Layout";
 import { EnhancedButton } from "@/components/ui/enhanced-button";
 import {
@@ -59,16 +58,10 @@ export default function About() {
       {/* Hero Section */}
       <section className="relative py-32 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-blue-50"></div>
-        <div className="absolute top-10 left-10 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-        <div className="absolute top-32 right-10 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
 
         <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
+            <div>
               <h1 className="text-5xl sm:text-7xl font-bold bg-gradient-to-r from-gray-900 via-black to-gray-700 bg-clip-text text-transparent mb-6">
                 About Our Mission
               </h1>
@@ -80,14 +73,9 @@ export default function About() {
                 </span>{" "}
                 that actually get noticed.
               </p>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center"
-            >
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/builder">
                 <EnhancedButton
                   size="lg"
@@ -106,7 +94,7 @@ export default function About() {
                   View Templates
                 </EnhancedButton>
               </Link>
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>
@@ -118,11 +106,8 @@ export default function About() {
             {stats.map((stat, index) => {
               const Icon = stat.icon;
               return (
-                <motion.div
+                <div
                   key={index}
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.1, duration: 0.5 }}
                   className="text-center group"
                 >
                   <div className="relative">
@@ -135,7 +120,7 @@ export default function About() {
                     {stat.number}
                   </div>
                   <div className="text-gray-600 font-medium">{stat.label}</div>
-                </motion.div>
+                </div>
               );
             })}
           </div>
@@ -146,35 +131,22 @@ export default function About() {
       <section className="py-24 bg-gradient-to-br from-gray-50 to-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <motion.h2
-              className="text-4xl sm:text-5xl font-bold text-black mb-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
+            <h2 className="text-4xl sm:text-5xl font-bold text-black mb-6">
               Why We Built This
-            </motion.h2>
-            <motion.p
-              className="text-xl text-gray-600 max-w-3xl mx-auto"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-            >
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               We saw too many qualified candidates getting rejected by ATS
               systems. Our mission is to level the playing field with completely
               free, optimized resume templates.
-            </motion.p>
+            </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
-                <motion.div
+                <div
                   key={index}
-                  initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.2, duration: 0.6 }}
                   className="group"
                 >
                   <div className="relative overflow-hidden rounded-3xl bg-white p-8 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
@@ -196,7 +168,7 @@ export default function About() {
                       {feature.description}
                     </p>
                   </div>
-                </motion.div>
+                </div>
               );
             })}
           </div>
@@ -208,11 +180,7 @@ export default function About() {
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50 opacity-50"></div>
 
         <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
+          <div>
             <h2 className="text-4xl sm:text-5xl font-bold mb-6 text-black">
               Ready to Build Your{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
@@ -222,7 +190,7 @@ export default function About() {
             </h2>
             <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
               Join thousands of successful job seekers who landed their dream
-              jobs with our ATS-optimized resume builder.
+              jobs with PersonalBuilder.
             </p>
             <Link to="/builder">
               <EnhancedButton
@@ -238,7 +206,7 @@ export default function About() {
                 Privacy focused
               </p>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
     </Layout>

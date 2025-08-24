@@ -29,7 +29,7 @@ export default function NotFound() {
               </Link>
               <Link to="/builder">
                 <Button className="bg-black hover:bg-gray-800 text-white font-roboto">
-                  Resume Builder
+                  PersonalBuilder
                 </Button>
               </Link>
             </div>

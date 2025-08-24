@@ -24,11 +24,86 @@ html {
   }
 }
 
-/* Cross-browser compatibility */
+/* Cross-browser compatibility and performance optimizations */
 *, *::before, *::after {
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Performance optimizations and cross-browser fixes */
+img, video {
+  max-width: 100%;
+  height: auto;
+  /* Prevent layout shifts in older browsers */
+  vertical-align: middle;
+}
+
+/* Cross-browser input styling */
+input, textarea, select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Fix for iOS Safari zoom on input focus */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="url"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+textarea {
+  font-size: 16px; /* Prevents zoom on iOS */
+}
+
+@media screen and (min-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="password"],
+  input[type="number"],
+  input[type="date"],
+  textarea {
+    font-size: inherit; /* Reset to normal size on larger screens */
+  }
+}
+
+/* Reduce layout shifts */
+img[width][height] {
+  height: auto;
+}
+
+/* GPU acceleration for animations */
+.gpu-accelerate {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Optimize repaints */
+.optimize-repaint {
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-pulse {
+    animation: none;
+  }
+
+  .animate-spin {
+    animation: none;
+  }
 }
 
 /* Ensure consistent scrollbar appearance across browsers */
@@ -79,16 +154,158 @@ html {
       max-width: 100%;
     }
   }
+
+  /* Fluid typography utilities */
+  .text-fluid-xs { font-size: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem); }
+  .text-fluid-sm { font-size: clamp(0.875rem, 0.8rem + 0.375vw, 1rem); }
+  .text-fluid-base { font-size: clamp(1rem, 0.9rem + 0.5vw, 1.125rem); }
+  .text-fluid-lg { font-size: clamp(1.125rem, 1rem + 0.625vw, 1.25rem); }
+  .text-fluid-xl { font-size: clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem); }
+  .text-fluid-2xl { font-size: clamp(1.5rem, 1.3rem + 1vw, 2rem); }
+  .text-fluid-3xl { font-size: clamp(1.875rem, 1.6rem + 1.375vw, 2.5rem); }
+  .text-fluid-4xl { font-size: clamp(2.25rem, 1.9rem + 1.75vw, 3rem); }
+  .text-fluid-5xl { font-size: clamp(3rem, 2.5rem + 2.5vw, 4rem); }
+  .text-fluid-6xl { font-size: clamp(3.75rem, 3rem + 3.75vw, 5rem); }
+
+  /* Touch-friendly utilities with cross-browser support */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  /* Ensure proper touch handling across browsers */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  /* Better touch response */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Cross-browser scroll behavior */
+.smooth-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch; /* iOS momentum scrolling */
+}
+
+/* Removed mobile safe area classes as they are no longer needed */
+
+/* Mobile viewport height that accounts for browser UI */
+@media screen and (max-width: 767px) {
+  .mobile-full-height {
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height - newer browsers */
+    height: calc(var(--vh, 1vh) * 100); /* Fallback with JS variable */
+  }
+
+  .mobile-content-height {
+    height: calc(100vh - 4rem);
+    height: calc(100dvh - 4rem); /* Dynamic viewport height - newer browsers */
+    height: calc((var(--vh, 1vh) * 100) - 4rem); /* Fallback with JS variable */
+  }
+}
+
+/* Lock body scroll for modals/overlays */
+.scroll-lock {
+  overflow: hidden;
+  /* Prevent bounce scrolling on iOS */
+  position: fixed;
+  width: 100%;
+}
+
+/* Safe flexbox for older browsers */
+.safe-flex {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.safe-flex-col {
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+/* Safe grid for older browsers */
+@supports not (display: grid) {
+  .grid {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+  }
+
+  .grid > * {
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+    min-width: 280px;
+  }
+}
+
+  /* Responsive spacing utilities */
+  .section-padding {
+    padding-top: clamp(4rem, 8vw, 8rem);
+    padding-bottom: clamp(4rem, 8vw, 8rem);
+  }
+
+  .container-padding {
+    padding-left: clamp(1rem, 4vw, 2rem);
+    padding-right: clamp(1rem, 4vw, 2rem);
+  }
+}
+
+/* Cross-browser vendor prefixes for critical features */
+.backdrop-blur-sm {
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.backdrop-blur {
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.backdrop-blur-xl {
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+/* Viewport height fallbacks for cross-browser support */
+.min-h-svh {
+  min-height: 100vh; /* Fallback for browsers without svh support */
+  min-height: 100svh;
+}
+
+.h-svh {
+  height: 100vh; /* Fallback for browsers without svh support */
+  height: 100svh;
+}
+
+/* Safe transform properties for cross-browser animations */
+.safe-transform {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 /* Enhanced drag animations */
 .drag-handle {
   cursor: grab;
+  cursor: -webkit-grab;
   transition: all 0.2s ease;
 }
 
 .drag-handle:active {
   cursor: grabbing;
+  cursor: -webkit-grabbing;
 }
 
 .drag-handle:hover {
@@ -105,9 +322,27 @@ html {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
-/* Smooth animations for better UX */
+/* Smooth animations for better UX with mobile optimization */
 .smooth-transition {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Use will-change for better mobile performance */
+  will-change: transform, opacity;
+}
+
+/* Optimized animations for mobile devices */
+@media (max-width: 768px) {
+  .smooth-transition {
+    transition-duration: 0.2s;
+  }
+
+  /* Reduce motion for performance on mobile */
+  .card-hover:hover {
+    transform: translateY(-1px);
+  }
+
+  .card-grab:hover {
+    transform: scale(1.01);
+  }
 }
 
 /* Focus styles for accessibility */

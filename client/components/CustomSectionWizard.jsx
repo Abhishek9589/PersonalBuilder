@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useRef, useEffect } from 'react';
+import { GSAPAnimations } from '@/lib/gsapUtils';
 import { 
   CustomSection, 
   CustomField, 
@@ -134,7 +134,7 @@ const SECTION_TEMPLATES = [
     layout: 'single-column' ,
     fields: [
       { label: 'Title', type: 'text', required: true },
-      { label: 'Publication Venue', type: 'text', required: true },
+      { label: 'Journal/Conference', type: 'text', required: true },
       { label: 'Publication Date', type: 'date', required: true },
       { label: 'URL/DOI', type: 'url', required: false },
       { label: 'Abstract', type: 'textarea', required: false },
@@ -648,17 +648,16 @@ export default function CustomSectionWizard({
 
         {/* Step Content */}
         <div className="flex-1 overflow-y-auto px-6">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentStep}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.2 }}
-            >
-              {renderStepContent()}
-            </motion.div>
-          </AnimatePresence>
+          <div
+            key={currentStep}
+            ref={(el) => {
+              if (el) {
+                GSAPAnimations.slideIn(el, { direction: 'right', duration: 0.2 });
+              }
+            }}
+          >
+            {renderStepContent()}
+          </div>
         </div>
 
         {/* Footer */}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { CustomSection, CustomSectionData, CustomField } from '@/pages/Builder';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Plus, X, Star, Settings } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { GSAPAnimations } from '@/lib/gsapUtils';
 import CustomSectionWizard from './CustomSectionWizard';
 
 
@@ -306,16 +306,22 @@ export default function CustomSectionEditor({
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
-          <AnimatePresence>
-            {section.data.map((entry, entryIndex) => (
-              <motion.div
-                key={entryIndex}
-                className="border border-gray-border rounded-lg p-6 bg-gray-50"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ delay: entryIndex * 0.1 }}
-              >
+          <div>
+            {section.data.map((entry, entryIndex) => {
+              const entryRef = useRef(null);
+
+              useEffect(() => {
+                if (entryRef.current) {
+                  GSAPAnimations.fadeIn(entryRef.current, { delay: entryIndex * 0.1 });
+                }
+              }, [entryIndex]);
+
+              return (
+                <div
+                  key={entryIndex}
+                  ref={entryRef}
+                  className="border border-gray-border rounded-lg p-6 bg-gray-50"
+                >
                 <div className="flex justify-between items-start mb-4">
                   <h4 className="font-semibold font-roboto text-black">
                     Entry #{entryIndex + 1}
@@ -344,9 +350,10 @@ export default function CustomSectionEditor({
                     />
                   ))}
                 </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+                </div>
+              );
+            })}
+          </div>
 
           {section.data.length === 0 && (
             <div className="text-center py-12 text-gray-text">

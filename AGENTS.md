@@ -15,9 +15,17 @@ While the starter comes with a express server, only create endpoint when strictl
 
 ```
 client/                   # React SPA frontend
-├── pages/                # Route components (Index.tsx = home)
+├── pages/                # Route components (Index.jsx = home)
+│   ├── Index.jsx         # Home page (/)
+│   ├── Builder.jsx       # Resume builder (/builder)
+│   ├── About.jsx         # About page (/about)
+│   ├── Templates.jsx     # Templates page (/templates)
+│   ├── Contact.jsx       # Contact page (/contact)
+│   ├── Privacy.jsx       # Privacy Policy (/privacy)
+│   ├── Terms.jsx         # Terms of Service (/terms)
+│   └── NotFound.jsx      # 404 page
 ├── components/ui/        # Pre-built UI component library
-├── App.tsx                # App entry point and with SPA routing setup
+├── App.jsx               # App entry point and with SPA routing setup
 └── global.css            # TailwindCSS 3 theming and global styles
 
 server/                   # Express API backend
@@ -45,6 +53,12 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 <Routes>
   <Route path="/" element={<Index />} />
+  <Route path="/builder" element={<Builder />} />
+  <Route path="/about" element={<About />} />
+  <Route path="/templates" element={<Templates />} />
+  <Route path="/contact" element={<Contact />} />
+  <Route path="/privacy" element={<Privacy />} />
+  <Route path="/terms" element={<Terms />} />
   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
   <Route path="*" element={<NotFound />} />
 </Routes>;

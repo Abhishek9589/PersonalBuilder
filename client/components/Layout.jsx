@@ -1,11 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
 import { EnhancedButton } from "@/components/ui/enhanced-button";
 import Logo from "@/components/Logo";
+import { Menu, X } from "lucide-react";
+import { useLockBodyScroll } from "@/hooks/use-lock-body-scroll";
 
 export default function Layout({ children }) {
   const location = useLocation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Lock body scroll when mobile menu is open
+  useLockBodyScroll(isMobileMenuOpen);
 
   const navItems = [
     { name: "Home", path: "/" },
@@ -19,24 +24,14 @@ export default function Layout({ children }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-gray-50/50 to-blue-50/30">
       {/* Header */}
-      <motion.header
-        className="relative backdrop-blur-xl bg-white/70 border-b border-white/20 sticky top-0 z-50 shadow-2xl shadow-black/5"
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-      >
+      <header className="relative bg-white border-b border-gray-200 sticky top-0 z-50 shadow-lg">
         {/* Background gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent"></div>
 
         <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
+          <div className="flex justify-between items-center h-16 md:h-20">
             {/* Logo */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2, duration: 0.6, type: "spring" }}
-              className="relative z-10"
-            >
+            <div className="relative z-10">
               <Link to="/" className="group">
                 <div className="relative">
                   <div className="absolute -inset-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-0 group-hover:opacity-20 transition-all duration-500"></div>
@@ -45,21 +40,13 @@ export default function Layout({ children }) {
                   </div>
                 </div>
               </Link>
-            </motion.div>
+            </div>
 
-            {/* Navigation */}
-            <motion.nav
-              className="hidden md:flex items-center space-x-2"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-            >
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex items-center space-x-2">
               {navItems.map((item, index) => (
-                <motion.div
+                <div
                   key={item.path}
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 + index * 0.1, duration: 0.4 }}
                   className="relative"
                 >
                   <Link
@@ -87,46 +74,86 @@ export default function Layout({ children }) {
 
                     {/* Text */}
                     <span className="relative z-10">{item.name}</span>
-
-
                   </Link>
-                </motion.div>
-              ))}
-            </motion.nav>
-
-            {/* CTA Button */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4, duration: 0.6, type: "spring" }}
-              className="relative"
-            >
-              <Link to="/builder">
-                <div className="relative group">
-                  {/* Animated background glow */}
-                  <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 rounded-3xl blur-sm opacity-60 group-hover:opacity-100 animate-pulse transition-all duration-500"></div>
-
-                  <EnhancedButton
-                    variant="premium"
-                    size="lg"
-                    className="relative font-roboto font-semibold px-8 py-4 text-white bg-gradient-to-r from-gray-900 via-black to-gray-900 hover:from-black hover:via-gray-800 hover:to-black rounded-3xl border border-white/20 shadow-2xl"
-                  >
-                    <span className="relative z-10">Create Resume</span>
-                    {/* Inner glow */}
-                    <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                  </EnhancedButton>
                 </div>
-              </Link>
-            </motion.div>
+              ))}
+            </nav>
+
+            {/* Mobile & Desktop CTA + Hamburger */}
+            <div className="flex items-center space-x-3">
+              {/* CTA Button */}
+              <div className="relative">
+                <Link to="/builder">
+                  <div className="relative group">
+                    {/* Animated background glow */}
+                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 rounded-3xl blur-sm opacity-60 group-hover:opacity-100 animate-pulse transition-all duration-500"></div>
+
+                    <EnhancedButton
+                      variant="premium"
+                      size="lg"
+                      className="relative font-roboto font-semibold px-4 md:px-8 py-3 md:py-4 text-sm md:text-base text-white bg-gradient-to-r from-gray-900 via-black to-gray-900 hover:from-black hover:via-gray-800 hover:to-black rounded-3xl border border-white/20 shadow-2xl"
+                    >
+                      <span className="relative z-10 hidden sm:inline">Create Resume</span>
+                      <span className="relative z-10 sm:hidden">Create</span>
+                      {/* Inner glow */}
+                      <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    </EnhancedButton>
+                  </div>
+                </Link>
+              </div>
+
+              {/* Mobile Menu Button */}
+              <div className="lg:hidden">
+                <button
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  className="relative w-10 h-10 rounded-2xl bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group touch-target"
+                  aria-label="Toggle mobile menu"
+                >
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-50 to-purple-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  {isMobileMenuOpen ? (
+                    <X className="w-5 h-5 text-gray-700 relative z-10" />
+                  ) : (
+                    <Menu className="w-5 h-5 text-gray-700 relative z-10" />
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-      </motion.header>
+
+        {/* Mobile Navigation Overlay */}
+        {isMobileMenuOpen && (
+          <div className="lg:hidden">
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 touch-manipulation" onClick={() => setIsMobileMenuOpen(false)}></div>
+            <div className="fixed top-16 md:top-20 left-0 right-0 bg-white border-b border-gray-200 shadow-2xl z-50 max-h-[calc(100vh-4rem)] md:max-h-[calc(100vh-5rem)] overflow-y-auto">
+              <div className="container mx-auto px-4 py-6">
+                <nav className="space-y-2">
+                  {navItems.map((item, index) => (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={`block px-6 py-4 rounded-2xl font-roboto font-medium transition-all duration-300 touch-target ${
+                        isActive(item.path)
+                          ? "bg-gradient-to-r from-blue-50 to-purple-50 text-black border-2 border-gray-200"
+                          : "text-gray-600 hover:text-black hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 border-2 border-transparent hover:border-gray-200"
+                      }`}
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
+                </nav>
+              </div>
+            </div>
+          </div>
+        )}
+      </header>
 
       {/* Main Content */}
       <main>{children}</main>
 
       {/* Footer */}
-      <footer className="relative bg-gradient-to-br from-blue-50 via-white to-indigo-50 text-gray-800 overflow-hidden mt-20 border-t border-gray-200">
+      <footer className="relative bg-gradient-to-br from-blue-50 via-white to-indigo-50 text-gray-800 overflow-hidden border-t border-gray-200">
         {/* Background pattern */}
         <div
           className={
@@ -137,15 +164,10 @@ export default function Layout({ children }) {
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-100/30 via-indigo-100/20 to-purple-100/30"></div>
 
-        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="space-y-6"
-            >
-              <div className="group">
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+            <div className="space-y-4 md:space-y-6 text-center md:text-left">
+              <div className="group flex justify-center md:justify-start">
                 <div className="relative">
                   <div className="absolute -inset-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl blur opacity-0 group-hover:opacity-30 transition-all duration-500"></div>
                   <div className="relative">
@@ -153,30 +175,25 @@ export default function Layout({ children }) {
                   </div>
                 </div>
               </div>
-              <p className="font-roboto text-gray-600 max-w-md leading-relaxed text-lg">
+              <p className="font-roboto text-gray-600 max-w-md leading-relaxed text-base md:text-lg mx-auto md:mx-0">
                 Create professional, ATS-friendly resumes that pass through
                 applicant tracking systems. Simple, minimal, and effective.
               </p>
-              <div className="flex space-x-4">
-                <div className="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center hover:bg-indigo-200 transition-all duration-300 cursor-pointer group border border-indigo-200">
-                  <div className="w-6 h-6 bg-indigo-600 rounded-full group-hover:scale-110 transition-transform duration-300"></div>
+              <div className="flex space-x-3 md:space-x-4 justify-center md:justify-start">
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-indigo-100 rounded-xl md:rounded-2xl flex items-center justify-center hover:bg-indigo-200 transition-all duration-300 cursor-pointer group border border-indigo-200 touch-manipulation">
+                  <div className="w-5 h-5 md:w-6 md:h-6 bg-indigo-600 rounded-full group-hover:scale-110 transition-transform duration-300"></div>
                 </div>
-                <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center hover:bg-blue-200 transition-all duration-300 cursor-pointer group border border-blue-200">
-                  <div className="w-6 h-6 bg-blue-600 rounded-full group-hover:scale-110 transition-transform duration-300"></div>
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-xl md:rounded-2xl flex items-center justify-center hover:bg-blue-200 transition-all duration-300 cursor-pointer group border border-blue-200 touch-manipulation">
+                  <div className="w-5 h-5 md:w-6 md:h-6 bg-blue-600 rounded-full group-hover:scale-110 transition-transform duration-300"></div>
                 </div>
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-              className="space-y-6"
-            >
-              <h3 className="font-roboto font-bold text-xl text-gray-800 mb-6">
+            <div className="space-y-4 md:space-y-6 text-center md:text-left">
+              <h3 className="font-roboto font-bold text-lg md:text-xl text-gray-800 mb-4 md:mb-6">
                 Features
               </h3>
-              <ul className="space-y-4">
+              <ul className="space-y-3 md:space-y-4">
                 {[
                   "ATS-Friendly Format",
                   "One-Page Layout",
@@ -185,27 +202,22 @@ export default function Layout({ children }) {
                 ].map((item, index) => (
                   <li
                     key={index}
-                    className="flex items-center space-x-3 group cursor-pointer"
+                    className="flex items-center space-x-2 md:space-x-3 group cursor-pointer justify-center md:justify-start touch-manipulation"
                   >
-                    <div className="w-2 h-2 bg-blue-500 rounded-full group-hover:scale-150 transition-transform duration-300"></div>
-                    <span className="font-roboto text-gray-600 group-hover:text-gray-800 transition-colors duration-300">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full group-hover:scale-150 transition-transform duration-300 flex-shrink-0"></div>
+                    <span className="font-roboto text-sm md:text-base text-gray-600 group-hover:text-gray-800 transition-colors duration-300">
                       {item}
                     </span>
                   </li>
                 ))}
               </ul>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.6 }}
-              className="space-y-6"
-            >
-              <h3 className="font-roboto font-bold text-xl text-gray-800 mb-6">
+            <div className="space-y-4 md:space-y-6 text-center md:text-left">
+              <h3 className="font-roboto font-bold text-lg md:text-xl text-gray-800 mb-4 md:mb-6">
                 About
               </h3>
-              <ul className="space-y-4">
+              <ul className="space-y-3 md:space-y-4">
                 {[
                   "No Login Required",
                   "Privacy Focused",
@@ -214,41 +226,39 @@ export default function Layout({ children }) {
                 ].map((item, index) => (
                   <li
                     key={index}
-                    className="flex items-center space-x-3 group cursor-pointer"
+                    className="flex items-center space-x-2 md:space-x-3 group cursor-pointer justify-center md:justify-start touch-manipulation"
                   >
-                    <div className="w-2 h-2 bg-indigo-500 rounded-full group-hover:scale-150 transition-transform duration-300"></div>
-                    <span className="font-roboto text-gray-600 group-hover:text-gray-800 transition-colors duration-300">
+                    <div className="w-2 h-2 bg-indigo-500 rounded-full group-hover:scale-150 transition-transform duration-300 flex-shrink-0"></div>
+                    <span className="font-roboto text-sm md:text-base text-gray-600 group-hover:text-gray-800 transition-colors duration-300">
                       {item}
                     </span>
                   </li>
                 ))}
               </ul>
-            </motion.div>
+            </div>
           </div>
 
-          <motion.div
-            className="border-t border-gray-200 mt-16 pt-8"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
-          >
-            <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-              <p className="font-roboto text-gray-600 text-sm">
-                © 2025 ATS Resume Builder. Free for students and professionals.
+          <div className="border-t border-gray-200 mt-12 md:mt-16 pt-6 md:pt-8">
+            <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 text-center md:text-left">
+              <p className="font-roboto text-gray-600 text-xs md:text-sm">
+                © 2025 PersonalBuilder. Free for students and professionals.
               </p>
-              <div className="flex space-x-6">
-                <span className="text-gray-500 text-sm hover:text-gray-800 transition-colors cursor-pointer">
-                  Privacy
-                </span>
-                <span className="text-gray-500 text-sm hover:text-gray-800 transition-colors cursor-pointer">
-                  Terms
-                </span>
-                <span className="text-gray-500 text-sm hover:text-gray-800 transition-colors cursor-pointer">
-                  Support
-                </span>
+              <div className="flex justify-center md:justify-end space-x-6 md:space-x-8">
+                <Link
+                  to="/privacy"
+                  className="text-gray-500 text-xs md:text-sm hover:text-gray-800 transition-colors duration-200 touch-manipulation"
+                >
+                  Privacy Policy
+                </Link>
+                <Link
+                  to="/terms"
+                  className="text-gray-500 text-xs md:text-sm hover:text-gray-800 transition-colors duration-200 touch-manipulation"
+                >
+                  Terms of Service
+                </Link>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </footer>
     </div>

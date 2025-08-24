@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { GSAPAnimations } from '@/lib/gsapUtils';
 import {
   Dialog,
   DialogContent,
@@ -23,11 +23,11 @@ import {
 } from 'lucide-react';
 
 
-const ONBOARDING_STEPS: OnboardingStep[] = [
+const ONBOARDING_STEPS = [
   {
     id: 'welcome',
-    title: 'Welcome to Enhanced Builder v2.0!',
-    description: 'Your resume builder just got a major upgrade with powerful new features.',
+    title: 'Welcome to PersonalBuilder v2.0!',
+    description: 'PersonalBuilder just got a major upgrade with powerful new features.',
     icon: Sparkles,
     tips: [
       'Drag and drop to reorder sections',
@@ -75,7 +75,7 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
   {
     id: 'tips',
     title: 'Pro Tips',
-    description: 'Get the most out of your enhanced resume builder.',
+    description: 'Get the most out of PersonalBuilder.',
     icon: Zap,
     tips: [
       'Use "Settings" button to edit individual sections',
@@ -87,7 +87,7 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
 ];
 
 
-export default function OnboardingGuide({ isOpen, onClose })) {
+export default function OnboardingGuide({ isOpen, onClose }) {
   const [currentStep, setCurrentStep] = useState(0);
 
   const handleNext = () => {
@@ -139,12 +139,14 @@ export default function OnboardingGuide({ isOpen, onClose })) {
           ))}
         </div>
 
-        <AnimatePresence mode="wait">
-          <motion.div
+        <div>
+          <div
             key={currentStep}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
+            ref={(el) => {
+              if (el) {
+                GSAPAnimations.slideIn(el, { direction: 'right', duration: 0.3 });
+              }
+            }}
             transition={{ duration: 0.3 }}
             className="space-y-6"
           >
@@ -225,8 +227,8 @@ export default function OnboardingGuide({ isOpen, onClose })) {
                 Skip tutorial
               </Button>
             </div>
-          </motion.div>
-        </AnimatePresence>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -39,7 +39,7 @@ import {
   CheckCircle,
   AlertCircle,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { GSAPAnimations } from '@/lib/gsapUtils';
 import { toast } from 'sonner';
 
 const iconMap = {
@@ -78,16 +78,23 @@ function SortableSection({
     opacity: isDragging ? 0.5 : 1,
   };
 
-  const IconComponent = iconMap[SECTION_ICONS[section.type]] || iconMap];
+  const IconComponent = iconMap[SECTION_ICONS[section.type]] || iconMap.FileText;
+
+  const motionRef = useRef(null);
+
+  useEffect(() => {
+    if (motionRef.current) {
+      GSAPAnimations.fadeIn(motionRef.current);
+    }
+  }, []);
 
   return (
-    <motion.div
-      ref={setNodeRef}
+    <div
+      ref={(el) => {
+        setNodeRef(el);
+        motionRef.current = el;
+      }}
       style={style}
-      layout
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
       className={`
         relative bg-white border border-gray-200 rounded-lg shadow-sm transition-all duration-200
         ${!section.isVisible ? 'opacity-60 bg-gray-50' : ''}
@@ -178,7 +185,7 @@ function SortableSection({
           {children}
         </div>
       )}
-    </motion.div>
+    </div>
   );
 }
 
@@ -301,7 +308,7 @@ export default function SectionManager({
               Visible Sections ({visibleSections.length})
             </h3>
             <SortableContext items={sections.map(s => s.id)} strategy={verticalListSortingStrategy}>
-              <AnimatePresence>
+              <div>
                 <div className="space-y-2">
                   {sections.map((section) => (
                     <SortableSection
@@ -313,7 +320,7 @@ export default function SectionManager({
                     />
                   ))}
                 </div>
-              </AnimatePresence>
+              </div>
             </SortableContext>
           </div>
         </div>

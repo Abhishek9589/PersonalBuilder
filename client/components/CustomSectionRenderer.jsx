@@ -155,7 +155,7 @@ export default function CustomSectionRenderer({
           <div className="space-y-3">
             {section.data.map((entry, entryIndex) => (
               <div key={entryIndex}>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {section.fields.map((field, fieldIndex) => (
                     <div key={field.id} className={fieldIndex % 2 === 0 ? '' : ''}>
                       <FieldRenderer

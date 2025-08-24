@@ -1,7 +1,6 @@
-# 🎯 VenueKart — Venue Booking Web Application
+# 🎯 PersonalBuilder — Professional Resume Builder
 
-VenueKart is a **full-stack venue booking platform** that allows users to search, view, and book venues, while giving venue owners an easy way to list and manage their properties.  
-Built with **React + Tailwind CSS + Vite** on the frontend and **Node.js + Express** on the backend, VenueKart delivers a sleek, modern, and responsive experience.
+PersonalBuilder is a **modern, ATS-friendly resume builder** that helps users create professional resumes that pass applicant tracking systems. Built with **React + Tailwind CSS + Vite** on the frontend and **Node.js + Express** on the backend, PersonalBuilder delivers a sleek, responsive, and user-friendly experience.
 
 ---
 
@@ -19,31 +18,32 @@ Built with **React + Tailwind CSS + Vite** on the frontend and **Node.js + Expre
 ---
 
 ## 📖 Overview
-VenueKart bridges the gap between **venue owners** and **event planners**. Whether you are hosting a wedding, corporate meeting, or private party, VenueKart lets you **discover the perfect location** with ease.  
-On the other side, venue owners get tools to **list, edit, and manage** their venues efficiently.
+PersonalBuilder empowers job seekers to create **professional, ATS-optimized resumes** without the complexity of traditional resume builders. Whether you're a student, professional, or career changer, PersonalBuilder helps you craft the perfect resume that passes through applicant tracking systems and impresses hiring managers.
 
 ---
 
 ## ✨ Features
 
-### 🛒 User Features
-- Browse venues with filters (location, price, amenities, etc.)
-- View detailed venue pages with images & descriptions
-- Contact venue owners directly
-- Book venues securely
+### 🎨 Resume Building Features
+- **ATS-Friendly Templates** - Optimized for applicant tracking systems
+- **Real-time Preview** - See your resume as you build it
+- **Drag & Drop Reordering** - Customize section order easily
+- **PDF Export** - Download professional PDFs instantly
+- **Auto-save** - Never lose your progress
+- **Multiple Profiles** - Create resumes for different career paths
 
-### 🏢 Venue Owner Features
-- Sign up & sign in securely
-- Add, edit, or remove venue listings
-- Upload venue images
-- Track booking requests
+### 📱 User Experience
+- **No Login Required** - Start building immediately
+- **Mobile Responsive** - Build resumes on any device
+- **Privacy Focused** - Your data stays in your browser (see Privacy Policy)
+- **Free Forever** - No hidden fees or subscriptions
+- **Legal Compliance** - Comprehensive Privacy Policy and Terms of Service
 
 ### 🛠 Technical Features
-- **Responsive UI** (Mobile, Tablet, Desktop)
-- **Authentication & Authorization**
-- **Reusable UI Components** (Shadcn/UI & Tailwind)
-- **API-based architecture** for scalable backend
-- **Netlify Deployment** ready (`netlify.toml` included)
+- **One-Page Layout** - Focused, professional format
+- **Custom Sections** - Add personalized content blocks
+- **Smart Suggestions** - Built-in resume improvement tips
+- **Cross-browser Compatible** - Works everywhere
 
 ---
 
@@ -53,17 +53,18 @@ On the other side, venue owners get tools to **list, edit, and manage** their ve
 - React.js
 - Tailwind CSS
 - Vite
-- Shadcn/UI components
+- Radix UI components
+- React Router (SPA mode)
 
 **Backend**
 - Node.js
 - Express.js
 
 **Other Tools**
-- Netlify (Frontend hosting)
-- REST API for data exchange
-- Context API for global state management
-- PostCSS for CSS processing
+- Netlify (Deployment)
+- React-to-Print (PDF generation)
+- Context API for state management
+- TypeScript support
 
 ---
 
@@ -75,8 +76,8 @@ On the other side, venue owners get tools to **list, edit, and manage** their ve
 
 ```bash
 # 1️⃣ Clone the repository
-git clone https://github.com/yourusername/venuekart.git
-cd venuekart/VenueKart
+git clone https://github.com/yourusername/personalbuilder.git
+cd personalbuilder
 
 # 2️⃣ Install dependencies
 npm install
@@ -84,10 +85,8 @@ npm install
 # 3️⃣ Start the development server
 npm run dev
 
-# 4️⃣ Start backend server
-cd server
-npm install
-node index.js
+# 4️⃣ Open your browser
+# Visit http://localhost:8080
 ```
 
 ---
@@ -95,41 +94,61 @@ node index.js
 ## 📂 Project Structure
 
 ```
-VenueKart/
+PersonalBuilder/
 │
-├── client/                # React frontend
+├── client/                 # React frontend
 │   ├── components/         # Reusable UI components
-│   ├── contexts/           # Context API (Auth management)
-│   ├── pages/              # Page-level components
-│   ├── global.css          # Global styles
-│   └── App.jsx             # App entry
+│   │   ├── ui/            # Base UI components (buttons, inputs, etc.)
+│   │   └── ...            # Feature-specific components
+│   ├── pages/             # Page-level components
+│   │   ├── Index.jsx      # Home page
+│   │   ├── Builder.jsx    # Resume builder
+│   │   ├── About.jsx      # About page
+│   │   ├── Templates.jsx  # Templates showcase
+│   │   ├── Contact.jsx    # Contact page
+│   │   ├── Privacy.jsx    # Privacy Policy
+│   │   ├── Terms.jsx      # Terms of Service
+│   │   └── NotFound.jsx   # 404 page
+│   ├── hooks/             # Custom React hooks
+│   ├── lib/               # Utility functions
+│   ├── contexts/          # Context API providers
+│   ├── data/              # Static data and configurations
+│   ├── global.css         # Global styles and Tailwind config
+│   └── App.jsx            # App entry point with routing
 │
-├── server/                 # Node.js backend
-│   ├── routes/             # API route handlers
-│   ├── index.js             # Main server file
-│   └── node-build.js        # Build script
+├── server/                # Node.js backend
+│   ├── routes/            # API route handlers
+│   └── index.js           # Main server file
 │
-├── public/                 # Static assets
-├── package.json            # Dependencies & scripts
-├── netlify.toml            # Netlify config
-└── tailwind.config.js      # Tailwind setup
+├── shared/                # Shared types and utilities
+├── public/                # Static assets
+├── package.json           # Dependencies & scripts
+├── netlify.toml           # Netlify deployment config
+└── tailwind.config.js     # Tailwind CSS configuration
 ```
 
 ---
 
 ## 🚀 Usage Guide
 
-### For Users
-1. Open VenueKart in your browser
-2. Browse venues using search and filters
-3. Click a venue to view details
-4. Contact or book directly
+### For Job Seekers
+1. **Visit PersonalBuilder** in your browser
+2. **Fill in your information** step by step:
+   - Personal details
+   - Professional summary
+   - Work experience
+   - Education
+   - Skills and certifications
+3. **Preview your resume** in real-time
+4. **Download as PDF** when ready
+5. **Create multiple profiles** for different career paths
 
-### For Venue Owners
-1. Create an account
-2. Navigate to the dashboard
-3. Add a venue with details & images
-4. Manage bookings
+### Key Features to Explore
+- **Drag sections** to reorder them
+- **Toggle section visibility** to customize your resume
+- **Add custom sections** for unique content
+- **Use the preview mode** to see the final result
+- **Export to PDF** with professional formatting
 
 ---
 
@@ -139,27 +158,50 @@ VenueKart/
 ```bash
 npm run build
 # Deploy the /dist folder to Netlify
+# Or connect your GitHub repo for automatic deployments
 ```
 
 **Backend**
 - Deploy on services like Render, Railway, or Heroku
-- Update API base URLs in frontend `.env`
+- Update API base URLs if needed
+
+**One-Click Deploy**
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/yourusername/personalbuilder)
 
 ---
 
 ## 🤝 Contributing
-We welcome contributions!  
-1. Fork the repo
-2. Create a new branch (`feature/awesome-feature`)
-3. Commit changes
-4. Submit a pull request
+We welcome contributions to make PersonalBuilder even better!  
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Development Guidelines
+- Follow the existing code style
+- Add tests for new features
+- Update documentation as needed
+- Ensure mobile responsiveness
 
 ---
 
-## 📜 License
-This project is licensed under the **MIT License** — feel free to use and modify.
+## 📄 License
+This project is licensed under the **MIT License** — feel free to use, modify, and distribute.
 
 ---
 
-## 📧 Contact
-For queries or support, email: **info@venuekart.in**
+## 🙏 Acknowledgments
+- Built with love for job seekers everywhere
+- Inspired by the need for truly ATS-friendly resumes
+- Thanks to all contributors and users
+
+---
+
+## 📧 Support
+For questions, bug reports, or feature requests:
+- Create an issue on GitHub
+- Email: kushwahaabhishek9981@gmail.com
+
+**Happy resume building! 🚀**

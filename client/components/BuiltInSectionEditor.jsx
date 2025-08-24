@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,7 +34,7 @@ export default function BuiltInSectionEditor({
   resumeData,
   onUpdateData,
   onBack,
-})) {
+}) {
   const IconComponent = sectionIcons[sectionType] || User;
 
   const renderSectionEditor = () => {
@@ -193,13 +192,9 @@ export default function BuiltInSectionEditor({
         </div>
       </CardHeader>
       <CardContent>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
+        <div>
           {renderSectionEditor()}
-        </motion.div>
+        </div>
       </CardContent>
     </Card>
   );

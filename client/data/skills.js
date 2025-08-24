@@ -1,6 +1,6 @@
 /**
  * Comprehensive Technical Skills Database
- * This file contains categorized lists of technical skills for the resume builder
+ * This file contains categorized lists of technical skills for PersonalBuilder
  */
 
 export const TECHNICAL_SKILLS = {

@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { EnhancedButton } from "@/components/ui/enhanced-button";
@@ -459,11 +458,7 @@ export default function Templates() {
 
         <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
+            <div>
               <h1 className="text-5xl sm:text-7xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent mb-6">
                 Resume Templates
               </h1>
@@ -475,14 +470,7 @@ export default function Templates() {
                 </span>{" "}
                 and make it yours.
               </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center"
-            />
+            </div>
           </div>
         </div>
       </section>
@@ -491,14 +479,9 @@ export default function Templates() {
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-16">
-            <motion.h2
-              className="text-4xl font-bold text-center text-black mb-8"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
+            <h2 className="text-4xl font-bold text-center text-black mb-8">
               Featured Templates
-            </motion.h2>
+            </h2>
             <p className="text-center text-gray-600 text-lg max-w-2xl mx-auto">
               Each template is carefully crafted to pass ATS systems while
               maintaining a professional appearance.
@@ -506,11 +489,8 @@ export default function Templates() {
           </div>
 
           {templates.map((template, index) => (
-            <motion.div
+            <div
               key={template.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.2, duration: 0.6 }}
               className="mb-20"
             >
               {/* Template Info Card */}
@@ -589,7 +569,7 @@ export default function Templates() {
                 </div>
                 <ResumePreview template={template} />
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </section>

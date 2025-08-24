@@ -131,14 +131,16 @@ export const createDefaultProfile = (name) => {
     name: name.trim(),
     data: {
       personalInfo: {
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        location: '',
-        website: '',
-        summary: ''
+        name: "",
+        phone: "",
+        email: "",
+        linkedin: "",
+        github: "",
+        portfolio: "",
+        address: "",
+        customLinks: [],
       },
+      summary: "",
       skills: {
         programmingLanguages: [],
         webTechnologies: [],
@@ -153,7 +155,25 @@ export const createDefaultProfile = (name) => {
       education: [],
       certifications: [],
       achievements: [],
-      interests: [],
+      interests: "",
+      fontFamily: "Roboto",
+      fontCategory: "sans-serif",
+      fontSize: 12,
+      marginSize: 24,
+      currentStep: 0,
+      customSkillInputs: {},
+      enhancedSteps: [
+        { id: "header", title: "Personal Info", icon: "User", required: true, enabled: true, order: 0 },
+        { id: "summary", title: "Summary", icon: "FileText", required: false, enabled: true, order: 1 },
+        { id: "skills", title: "Skills", icon: "Code", required: false, enabled: true, order: 2 },
+        { id: "experience", title: "Experience", icon: "Briefcase", required: false, enabled: true, order: 3 },
+        { id: "projects", title: "Projects", icon: "FolderOpen", required: false, enabled: true, order: 4 },
+        { id: "education", title: "Education", icon: "GraduationCap", required: false, enabled: true, order: 5 },
+        { id: "certifications", title: "Certifications", icon: "Award", required: false, enabled: true, order: 6 },
+        { id: "achievements", title: "Achievements", icon: "Trophy", required: false, enabled: true, order: 7 },
+        { id: "interests", title: "Interests", icon: "Heart", required: false, enabled: true, order: 8 },
+        { id: "customization", title: "Customization", icon: "Palette", required: true, enabled: true, order: 9 }
+      ],
       customSections: []
     }
   };

@@ -34,16 +34,27 @@ const ProfileCreationModal = ({ isOpen, onClose, onProfileCreated }) => {
     setError('');
 
     try {
+      console.log('Creating profile with name:', profileName.trim());
       const newProfile = createDefaultProfile(profileName.trim());
+      console.log('New profile created:', newProfile);
+
       const success = saveProfile(newProfile);
-      
+      console.log('Profile save result:', success);
+
       if (success) {
         setCurrentProfileId(newProfile.id);
+        console.log('Profile ID set as current:', newProfile.id);
+
         toast.success(`Profile "${newProfile.name}" created successfully!`);
+
+        console.log('Calling onProfileCreated with profile:', newProfile);
         onProfileCreated(newProfile);
+
+        console.log('Closing modal');
         onClose();
         setProfileName('');
       } else {
+        console.error('Failed to save profile');
         setError('Failed to create profile. Please try again.');
       }
     } catch (err) {

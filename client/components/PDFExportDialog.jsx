@@ -1,6 +1,5 @@
 import React, { useRef } from "react";
 import { useReactToPrint } from "react-to-print";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   Dialog,
   DialogContent,
@@ -29,12 +28,8 @@ export default function PDFExportDialog(props) {
   const printRef = useRef(null);
 
   const fallbackPrint = React.useCallback(() => {
-    // Fallback method using window.print
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      alert('Please allow popups to download the PDF');
-      return;
-    }
+    // Enhanced fallback method with better mobile/tablet support
+    const isMobileTablet = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 1024;
 
     const printContent = printRef.current?.innerHTML;
     if (!printContent) {
@@ -42,40 +37,82 @@ export default function PDFExportDialog(props) {
       return;
     }
 
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>${(personalInfo?.name || 'resume').replace(/\s+/g, "_")}_cv</title>
-          <style>
-            @page {
-              size: A4;
-              margin: 0;
-            }
-            @media print {
-              body {
-                -webkit-print-color-adjust: exact;
-                color-adjust: exact;
+    if (isMobileTablet) {
+      // For mobile/tablet: Use direct window.print() with current page
+      const originalContent = document.body.innerHTML;
+      const printableContent = `
+        <html>
+          <head>
+            <title>${(personalInfo?.name || 'resume').replace(/\s+/g, "_")}_cv</title>
+            <style>
+              @page { size: A4; margin: 0; }
+              @media print {
+                body { -webkit-print-color-adjust: exact; color-adjust: exact; font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+                * { -webkit-print-color-adjust: exact; color-adjust: exact; }
               }
-            }
-            body {
-              margin: 0;
-              padding: 0;
-              font-family: Arial, sans-serif;
-            }
-          </style>
-        </head>
-        <body>
-          ${printContent}
-        </body>
-      </html>
-    `);
+              body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+            </style>
+          </head>
+          <body>${printContent}</body>
+        </html>
+      `;
 
-    printWindow.document.close();
-    setTimeout(() => {
-      printWindow.print();
-      printWindow.close();
-    }, 500);
+      // Temporarily replace page content
+      document.body.innerHTML = printContent;
+
+      // Apply print styles
+      const style = document.createElement('style');
+      style.textContent = `
+        @page { size: A4; margin: 0; }
+        @media print {
+          body { -webkit-print-color-adjust: exact; color-adjust: exact; font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+          * { -webkit-print-color-adjust: exact; color-adjust: exact; }
+        }
+        body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+      `;
+      document.head.appendChild(style);
+
+      // Print and restore
+      window.print();
+
+      // Restore original content after print dialog
+      setTimeout(() => {
+        document.body.innerHTML = originalContent;
+        document.head.removeChild(style);
+        // Re-initialize any necessary scripts/components
+        window.location.reload();
+      }, 1000);
+    } else {
+      // For desktop: Use popup window approach
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        alert('Please allow popups to download the PDF');
+        return;
+      }
+
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>${(personalInfo?.name || 'resume').replace(/\s+/g, "_")}_cv</title>
+            <style>
+              @page { size: A4; margin: 0; }
+              @media print {
+                body { -webkit-print-color-adjust: exact; color-adjust: exact; }
+              }
+              body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+            </style>
+          </head>
+          <body>${printContent}</body>
+        </html>
+      `);
+
+      printWindow.document.close();
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+      }, 500);
+    }
   }, [personalInfo?.name]);
 
   const reactToPrintFn = useReactToPrint({
@@ -164,19 +201,11 @@ export default function PDFExportDialog(props) {
           <div className="space-y-6">
             {/* Preview Section */}
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-roboto font-semibold text-lg text-black flex items-center gap-2">
+              <div className="text-center">
+                <h3 className="font-roboto font-semibold text-lg text-black flex items-center justify-center gap-2 mb-4">
                   <Eye className="w-5 h-5" />
                   Preview
                 </h3>
-                <EnhancedButton
-                  onClick={safePrint}
-                  className="font-roboto"
-                  size="lg"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Download PDF
-                </EnhancedButton>
               </div>
 
               {/* Scaled Preview - NO REF */}
@@ -208,24 +237,24 @@ export default function PDFExportDialog(props) {
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex justify-end space-x-3 pt-4 border-t border-gray-border">
-              <Button
-                variant="outline"
-                onClick={onClose}
-                className="font-roboto"
-              >
-                <X className="w-4 h-4 mr-2" />
-                Close
-              </Button>
+            {/* Action Buttons - Single Download and Close vertically stacked */}
+            <div className="flex flex-col items-center space-y-3 pt-4 border-t border-gray-border">
               <EnhancedButton
                 onClick={safePrint}
-                className="font-roboto"
+                className="font-roboto w-full max-w-xs"
                 size="lg"
               >
                 <Download className="w-4 h-4 mr-2" />
                 Download PDF
               </EnhancedButton>
+              <Button
+                variant="outline"
+                onClick={onClose}
+                className="font-roboto w-full max-w-xs"
+              >
+                <X className="w-4 h-4 mr-2" />
+                Close
+              </Button>
             </div>
           </div>
         </DialogContent>
